@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#363636">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Flota Hajali">
+  <meta name="format-detection" content="telephone=no">
+  <title>Control de Flota | Hajali Tractor</title>
+
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            hj: {
+              yellow: '#F0B823',   // amarillo institucional
+              graphite: '#363636', // gris institucional
+              cream: '#FCE9B8',    // acento claro (destacados)
+              mute: '#555555',     // texto secundario
+              soft: '#8a8a8a',
+              line: '#e4e4e4',
+              paper: '#fafafa'
+            }
+          },
+          fontFamily: { sans: ['"Gothic A1"', 'system-ui', 'Segoe UI', 'Arial', 'sans-serif'] }
+        }
+      }
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+
+  <style>
+    :root { --hj-yellow:#F0B823; --hj-graphite:#363636; --hj-cream:#FCE9B8; }
+    html { -webkit-text-size-adjust: 100%; }
+    body { font-family: "Gothic A1", system-ui, sans-serif; background:#fff; color:#363636; }
+
+    /* Franja de marca: bloque amarillo + bloque gris con patrón, corte recto (igual que el pie del membrete) */
+    .hj-band { display:flex; height:10px; }
+    .hj-band > .y { background:var(--hj-yellow); flex:0 0 62%; }
+    .hj-band > .g { background:var(--hj-graphite) url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAMAAABg3Am1AAAACVBMVEU3NjZAPTRDQDdSmk53AAAA8UlEQVRIx+1UQRLEIAiD/P/R21ZFVNB0Zve2HDqOTQxIUOQfvwmtX32CwGvDujgw5C3DpFiGkxKtX7r+cjpJUO0MUqGeTsKNQcOvgL6voxPIu6UkHn+s/a6uWcWUiq8wsFoX3c6RRF9nK9cAnBhDS29xnCQQEEacSxRzUnrIKSJMONtGWDY2FyXjqklAMgIGLUvpTPB447n8gqoj3+46gQUdw0whJVw9RPlriz1BhqcgsV9zWBIa1OC2nDX70ztPeeCHuxjXtkCglTy3LRhSJwDR88T1irkJFefvNSRLKMODhI/7k+Oabj3NLr1MbuRrMj4PVQNqYpl07gAAAABJRU5ErkJggg==') repeat; background-size:34px 34px; flex:1; }
+    .hj-pattern { background-color:var(--hj-graphite); background-image:url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAMAAABg3Am1AAAACVBMVEU3NjZAPTRDQDdSmk53AAAA8UlEQVRIx+1UQRLEIAiD/P/R21ZFVNB0Zve2HDqOTQxIUOQfvwmtX32CwGvDujgw5C3DpFiGkxKtX7r+cjpJUO0MUqGeTsKNQcOvgL6voxPIu6UkHn+s/a6uWcWUiq8wsFoX3c6RRF9nK9cAnBhDS29xnCQQEEacSxRzUnrIKSJMONtGWDY2FyXjqklAMgIGLUvpTPB447n8gqoj3+46gQUdw0whJVw9RPlriz1BhqcgsV9zWBIa1OC2nDX70ztPeeCHuxjXtkCglTy3LRhSJwDR88T1irkJFefvNSRLKMODhI/7k+Oabj3NLr1MbuRrMj4PVQNqYpl07gAAAABJRU5ErkJggg=='); background-size:34px 34px; }
+
+    /* Marca de agua tenue en el fondo del catálogo */
+    .num { font-variant-numeric: tabular-nums; }
+
+    /* Placa / ficha estilo matrícula */
+    .plate { border:2px solid var(--hj-graphite); background:#fff; letter-spacing:.06em; }
+
+    /* Acordeón con transición de altura */
+    .acc-body { display:grid; grid-template-rows:0fr; transition:grid-template-rows .25s ease; }
+    .acc-body > div { overflow:hidden; }
+    .acc[aria-expanded="true"] + .acc-body { grid-template-rows:1fr; }
+    .acc[aria-expanded="true"] .chev { transform:rotate(180deg); }
+    .chev { transition:transform .2s ease; }
+
+    /* Modales */
+    .modal { position:fixed; inset:0; z-index:50; display:none; }
+    .modal.open { display:block; }
+    .modal .scrim { position:absolute; inset:0; background:rgba(54,54,54,.55); }
+    .modal .wrap { position:relative; height:100%; overflow-y:auto; }
+    .modal .sheet { animation:sheetIn .22s ease-out; }
+    @keyframes sheetIn { from { transform:translateY(16px); opacity:0 } to { transform:none; opacity:1 } }
+
+    /* Toggle Interno / Externo */
+    .seg input { position:absolute; opacity:0; pointer-events:none; }
+    .seg label { cursor:pointer; }
+    .seg input:checked + label { background:var(--hj-graphite); color:#fff; }
+    .seg input:checked + label.ext { background:var(--hj-yellow); color:var(--hj-graphite); }
+    .seg input:focus-visible + label { outline:3px solid var(--hj-yellow); outline-offset:2px; }
+
+    /* Chips de categoría */
+    .chip[aria-pressed="true"] { background:var(--hj-graphite); color:#fff; border-color:var(--hj-graphite); }
+    .chip[aria-pressed="true"] .chip-n { background:var(--hj-yellow); color:var(--hj-graphite); }
+
+    :focus-visible { outline:3px solid var(--hj-yellow); outline-offset:2px; }
+
+    /* ---------- Móvil: Android y iPhone ---------- */
+    html, body { -webkit-tap-highlight-color: transparent; }
+    header { padding-top: env(safe-area-inset-top, 0px); }
+    footer { padding-bottom: env(safe-area-inset-bottom, 0px); }
+    .no-scrollbar { scrollbar-width:none; } .no-scrollbar::-webkit-scrollbar { display:none; }
+    .modal .wrap { overscroll-behavior:contain; -webkit-overflow-scrolling:touch; }
+    input[type=date] { min-height:2.5rem; -webkit-appearance:none; appearance:none; background:#fff; }
+    .fab { right: calc(16px + env(safe-area-inset-right, 0px)); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); }
+    body.modal-open .fab { display:none; }
+    .sticky-actions { padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px)); }
+    @media (max-width: 639px) {
+      input, select, textarea { font-size:16px !important; }  /* evita el zoom automático de iOS */
+      .modal .sheet { padding-top: env(safe-area-inset-top, 0px); }
+    }
+    .spin { animation:spin 1s linear infinite; }
+    @keyframes spin { to { transform:rotate(360deg) } }
+
+    .skel { background:linear-gradient(90deg,#f1f1f1 25%,#e7e7e7 37%,#f1f1f1 63%); background-size:400% 100%; animation:sk 1.4s ease infinite; }
+    @keyframes sk { 0%{background-position:100% 50%} 100%{background-position:0 50%} }
+
+    input[type=number]::-webkit-inner-spin-button { opacity:.4; }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration:.01ms !important; transition-duration:.01ms !important; }
+    }
+  </style>
+</head>
+<body class="min-h-screen">
+
+  <!-- ===================== ACCESO (solo versión app) ===================== -->
+  <div id="loginScreen" class="hidden fixed inset-0 z-[65] bg-white flex flex-col">
+    <div class="flex-1 flex flex-col items-center justify-center px-6">
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAggAAAEaCAMAAABD1F9cAAAACVBMVEX////wuCMAAAD58/NBAAAAAXRSTlMAQObYZgAAB8tJREFUeNrtm+m267gKBu28/0Pf1U7f1cmOgA9NHlT178g2wlCbOMPZNgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAOey1nJ049AUR4A0mwAEiwEG1CJjwMBABDhgJ8AYR4ICRAAeIAG8wAQ4QAQ7qRcCERyG1+u8CIjwQxYQdE5YFEeCAkQBvEAEOGAnwxhcBE9aBkQAHykg4O0eYASMBDoznxe/DZycJE2AkwMGqbyFf33gHleuNs6yTixdoIbVdE8n9H0T4qZTQEKWx7tm/52shxV0zmv7LoiMBEX5ABEQ4WHMk9BfhJW8mi/CKQ4k7SjVBhLQIUmdzp4shx4uwmAmIUAARuojwUjfTRYjfY4o7akVZcSQ0iVBuWpMIasihIqw4EhChxIIjARGKlL5qQoSsCOoHvgkRwjeZ4o5yXZYbCS0iWE1rEEEOOUcE/+voE9o1DkQwWG0kIILBaiOhQYSXjbZZRoRoc3HHRGUWGwnXEkEPOUuEZUbCVBHCLa8kwmIjYYwImd8p1YWcJoJvwvR+DaNeBK9plSIkQk4QYa2RgAg2S40ERHBY6YPmXiIkfi9cKUL611OJ0wxWGgmlQtV0oocImZDNIuxTOLu9iBCfNseE27jQTQTxf5xkRNj07WteGjChhwi/h+SRYJ2YCnkjEe6hwsIiYAIiYMJAEWQTdBES7zQvLsL1TagUQbgsK0IuZBcRGAmIMFuEy5uwtgiY0ChC+YhoQvm0ZEhEuKII7mqdCFHITiJgAiIgwo1FMN9r1n/7iAkNIhgH6ppTF3KoCN5x9di2oAjherxlOuRQEbqYgAj3EgET7EL3EuGlb5kOiQid8QqVbkK9CPaVw0XABK/ObhXta8wLoqgVIa8hwpY4hgjbKxoblxNhzEg4u9sOFSI4xfXUMU551YXsKMK414Y7mTBFhJfHgJBS4ECE1UZCuwhKuGS/hJDXESH1lHB2u88SQWlbXcieIjASurSggwgVIRHhjiI0tes0EYaYcHa/x4kgxWtqFyJcUoSgtOm/3ygJMY0mEXhcnCRC0K7eIXuJsNRImCKC07bakIhwcRGyr+gVIV9+xDYRtu7NfqgIYWVzXRsQskaErSzCSiNhigh22xDhKpwrwlYdEhGuJUIYsPi2ICnClgnZKIL9kNDLhLM73kcEobCJv1/Rg/NEGDESzu74mSJ4HlxDBF4bpohQbptzfhwSETrjFiqsvxrS8aBnyPAsuw6CCJlPkuVjq2FqcBU+2qQ29GEPCZO4tgamCAs9Lc7jshL8AyLAASLAm3kiYMKlGSgCI+FO/Nek/s1GhBthiMBDwmp8NAkRVgYR4AAR4AAR4OCjR4iwMogAB4gAB4gABx8tQoSVQQQ4QAQ4+OgQIqwMIsABIpxCc0W6l/Qj2pIi7C7GGWI8aU89EXGTXL6fl7n5lUJXHpvX3QRVIiR7HOyoJLI7AZQ7UgpRjLCpGy8qgnU7yTM+zpNFiFLJpPt1WXgPiV7f76dq9SLsYTR5uziRPQ4Q3lFQh3IAtdmJY2e33CpAtQh7GE3fTRVBSCWT7+dV5QCVzV5LhLDR+m6iCEoqmXw/rjICIMIIEbxIJ4tgZTmgxtN7XJNkToTwgV3dK0wkfqCU7ihdkhE1PqfRySQvLYKgSi7fuCQjanxWq1NJZssfBBO3ihPpJILShO5Nq7JxOjcSYY9PSeYbV2REic9tuJpliwj+8ZZtniTC2R1P5Busm7eVEeFz0S6cXVA7FT3fqA4rPSIU8w3Xm0X4XrULZ0Z3FvV8gzJ0appTkmvSLMJeonj0O75TOaug3ioidEs4Xg9EaGtGLIK7jAjdEo7XbybCJu/NI8LlRdjj/P5+/Bjfm7v5kC8aFhDha+33hKpehKsbInQnIULxvnwREqXoL0Ld5n1+eIIItxTB7JnXz9pjF0UXoXhj32sTRfi7l5hvuDciZD5ZlNvRUYQgcTHfcO8hHjxHBPO+LipCrg9dmu0dQ4T7iWAeaDh2Bw8aRfi7Fv1b64aQXkoEfed1B0KVCM7V40RIvWuoFsFa/wmTOPZYEbyrbyiCearXzsyxW3iwggj6xvIfvdvqVURwL/b7oyXSWQR930ED4aEiBBeb/Wn+0sn/mYKUb7Bvn8+L7ulBWoTo4s4iVH4NXefBygMhK4JVRGvN/rtxOmLV1VtV8vXvf20PmiZCUoQ/I9/uiFVYb1XJ1739US8Ma4lgLxZrUiqQUllnrU6EfQJnd1gkK0L4sZ8nwncwsydOr8oRxXy9u1/dgxYRIjuKJuzxhtGs7SfCBA+eK8IeXNpbhKBbiXzxwEMTIXgudCOKReoqgjQSZnjwZBGiXx/tzqU1IrgNS+Tr3Doe6L9QqhdBNKGvCMJIwAO34ea6098gZKsIUgBv0+DGEcFrZ0cRNqlOXvmE6+N8tZCreqCL4HxmaNfYr3pwVdi2VL5KwIU9mCPCJtTJL2DCIyUgHjglCde/71Eqs1N6pzd+npX5+sFW16BWhF39ezOLr11kd0+4D+vsGRrczoOptFapT5nRAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGA5/geDJ4daYzliXwAAAABJRU5ErkJggg==" alt="Hajali Tractor" class="w-52 max-w-[70vw]">
+      <h1 class="mt-8 text-xl font-extrabold">Control de flota</h1>
+      <p class="text-sm text-hj-mute mt-1 text-center">Escribe el código de acceso que te dio Compras.</p>
+      <form id="loginForm" class="mt-6 w-full max-w-xs space-y-3">
+        <input id="loginClave" type="password" autocomplete="current-password" required placeholder="Código de acceso"
+          class="w-full h-12 px-4 rounded-md border border-hj-line text-center text-lg" aria-label="Código de acceso">
+        <button id="loginBtn" class="w-full h-12 rounded-md bg-hj-yellow font-extrabold flex items-center justify-center gap-2">Entrar</button>
+        <p id="loginError" class="hidden text-sm font-semibold text-center bg-hj-cream border-l-4 border-hj-graphite px-3 py-2 rounded"></p>
+      </form>
+    </div>
+    <div class="hj-band"><div class="y"></div><div class="g"></div></div>
+  </div>
+
+  <!-- Aviso de instalación en iPhone -->
+  <div id="iosHint" class="hidden fixed left-3 right-3 z-[66] rounded-lg bg-hj-graphite text-white p-4 shadow-xl" style="bottom:calc(12px + env(safe-area-inset-bottom,0px))">
+    <div class="flex gap-3 items-start">
+      <img src="icons/apple-touch-icon.png" alt="" class="w-11 h-11 rounded-lg">
+      <div class="text-sm flex-1">
+        <p class="font-bold">Instala Flota Hajali en tu iPhone</p>
+        <p class="text-white/80 mt-1">Toca <i data-lucide="share" class="inline w-4 h-4 text-hj-yellow -mt-1"></i> Compartir y luego <b class="text-hj-yellow">Agregar a inicio</b>.</p>
+      </div>
+      <button id="iosHintClose" class="h-8 w-8 grid place-items-center rounded hover:bg-white/10" aria-label="Cerrar aviso"><i data-lucide="x" class="w-4 h-4"></i></button>
+    </div>
+  </div>
+
+  <!-- Aviso sin conexión -->
+  <div id="offlineBar" class="hidden sticky top-0 z-30 bg-hj-cream border-b-2 border-hj-yellow text-sm font-semibold text-center px-4 py-2"></div>
+
+  <!-- ===================== CARGA INICIAL ===================== -->
+  <div id="bootLoader" class="fixed inset-0 z-[60] bg-white flex flex-col items-center justify-center gap-6">
+    <img src="data:image/png;base64,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" alt="Hajali Tractor" class="w-56 max-w-[70vw]">
+    <div class="w-56 h-1.5 bg-hj-line overflow-hidden rounded-full">
+      <div class="h-full w-1/3 bg-hj-yellow rounded-full" style="animation:boot 1.1s ease-in-out infinite alternate"></div>
+    </div>
+    <p class="text-sm text-hj-mute">Cargando unidades y mantenimientos…</p>
+    <style>@keyframes boot { from { transform:translateX(0) } to { transform:translateX(200%) } }</style>
+  </div>
+
+  <!-- ===================== ENCABEZADO ===================== -->
+  <header class="bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center gap-3 sm:gap-4 justify-between">
+      <div class="flex items-center gap-3 sm:gap-5 min-w-0">
+        <img src="data:image/png;base64,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" alt="Hajali Tractor" class="h-9 sm:h-12 w-auto shrink-0">
+        <div class="hidden md:block h-10 w-px bg-hj-line"></div>
+        <div class="min-w-0">
+          <h1 class="text-base sm:text-xl font-extrabold leading-tight">Control de flota</h1>
+          <p class="hidden sm:block text-sm text-hj-mute">Mantenimiento y costos por unidad</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 shrink-0">
+        <button id="btnInstalar" class="hidden h-10 px-3 rounded-md border-2 border-hj-graphite text-sm font-bold items-center gap-1.5">
+          <i data-lucide="download" class="w-4 h-4"></i><span>Instalar</span>
+        </button>
+        <span id="demoBadge" class="hidden text-[11px] sm:text-xs font-bold px-2.5 py-1 rounded bg-hj-cream border-l-4 border-hj-yellow">Modo demostración</span>
+        <button id="btnRefresh" class="h-10 w-10 grid place-items-center rounded-md border border-hj-line hover:bg-hj-paper" title="Actualizar datos" aria-label="Actualizar datos">
+          <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+        </button>
+        <button id="btnNuevo" class="hidden sm:flex h-10 px-4 rounded-md bg-hj-yellow text-hj-graphite font-bold text-sm flex items-center gap-2 hover:brightness-95">
+          <i data-lucide="plus" class="w-4 h-4"></i><span>Registrar mantenimiento</span>
+        </button>
+      </div>
+    </div>
+    <div class="hj-band"><div class="y"></div><div class="g"></div></div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 pb-28 sm:pb-16">
+
+    <!-- ===================== FILTROS ===================== -->
+    <section class="py-5 border-b border-hj-line" aria-label="Filtros">
+      <div class="flex flex-col lg:flex-row lg:items-end gap-4">
+        <div class="flex gap-2 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap" id="chipsTipo" role="group" aria-label="Categoría"></div>
+        <div class="grid grid-cols-2 sm:flex sm:flex-wrap items-end gap-3 lg:ml-auto">
+          <label class="text-xs text-hj-mute">Desde
+            <input id="fDesde" type="date" class="block mt-1 w-full sm:w-auto h-10 px-3 rounded-md border border-hj-line text-sm text-hj-graphite">
+          </label>
+          <label class="text-xs text-hj-mute">Hasta
+            <input id="fHasta" type="date" class="block mt-1 w-full sm:w-auto h-10 px-3 rounded-md border border-hj-line text-sm text-hj-graphite">
+          </label>
+          <button id="btnLimpiar" class="col-span-2 sm:col-span-1 h-10 px-3 text-sm font-semibold text-hj-mute hover:text-hj-graphite underline underline-offset-4">Limpiar filtros</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== KPIs ===================== -->
+    <section class="grid grid-cols-1 md:grid-cols-12 gap-4 pt-6" aria-label="Indicadores">
+      <!-- Costo total (bloque protagonista) -->
+      <div class="md:col-span-5 hj-pattern rounded-lg p-6 text-white relative overflow-hidden">
+        <div class="absolute left-0 top-0 bottom-0 w-2 bg-hj-yellow"></div>
+        <p class="text-sm text-white/80">Costo acumulado de la flota</p>
+        <p id="kTotal" class="num mt-2 text-4xl sm:text-5xl font-black text-hj-yellow tracking-tight">—</p>
+        <p id="kTotalSub" class="mt-3 text-sm text-white/75">&nbsp;</p>
+      </div>
+
+      <!-- Interno vs externo -->
+      <div class="md:col-span-4 rounded-lg border border-hj-line p-6">
+        <p class="text-sm text-hj-mute">Taller interno vs. externo</p>
+        <div class="mt-4 h-3 w-full rounded-full overflow-hidden flex bg-hj-line" aria-hidden="true">
+          <div id="kBarInt" class="h-full bg-hj-graphite" style="width:0"></div>
+          <div id="kBarExt" class="h-full bg-hj-yellow" style="width:0"></div>
+        </div>
+        <dl class="mt-4 grid grid-cols-2 gap-3">
+          <div>
+            <dt class="flex items-center gap-1.5 text-xs text-hj-mute"><span class="w-2.5 h-2.5 rounded-sm bg-hj-graphite"></span>Interno</dt>
+            <dd id="kInt" class="num text-lg font-extrabold">—</dd>
+            <dd id="kIntPct" class="num text-xs text-hj-mute">—</dd>
+          </div>
+          <div>
+            <dt class="flex items-center gap-1.5 text-xs text-hj-mute"><span class="w-2.5 h-2.5 rounded-sm bg-hj-yellow"></span>Externo</dt>
+            <dd id="kExt" class="num text-lg font-extrabold">—</dd>
+            <dd id="kExtPct" class="num text-xs text-hj-mute">—</dd>
+          </div>
+        </dl>
+      </div>
+
+      <!-- Intervenciones -->
+      <div class="md:col-span-3 rounded-lg border border-hj-line p-6 flex flex-col">
+        <p class="text-sm text-hj-mute">Intervenciones realizadas</p>
+        <p id="kCount" class="num mt-2 text-4xl font-black">—</p>
+        <p id="kCountSub" class="mt-auto pt-3 text-xs text-hj-mute">&nbsp;</p>
+      </div>
+    </section>
+
+    <!-- ===================== GRÁFICOS ===================== -->
+    <section class="grid grid-cols-1 lg:grid-cols-3 gap-4 pt-4" aria-label="Análisis">
+      <div class="lg:col-span-2 rounded-lg border border-hj-line p-5">
+        <div class="flex items-center justify-between gap-3 mb-3">
+          <h2 class="font-extrabold">Costos acumulados</h2>
+          <div class="inline-flex rounded-md border border-hj-line p-0.5 text-xs font-bold" role="group" aria-label="Agrupar por">
+            <button data-mode="unidad" class="modeBtn px-3 py-1.5 rounded">Por unidad</button>
+            <button data-mode="categoria" class="modeBtn px-3 py-1.5 rounded">Por categoría</button>
+          </div>
+        </div>
+        <div class="relative h-72"><canvas id="chBar" aria-label="Gráfico de barras de costos"></canvas></div>
+      </div>
+      <div class="rounded-lg border border-hj-line p-5">
+        <h2 class="font-extrabold mb-3">Costo por tipo de taller</h2>
+        <div class="relative h-72">
+          <canvas id="chDonut" aria-label="Gráfico de dona interno vs externo"></canvas>
+          <div class="absolute inset-0 grid place-items-center pointer-events-none" style="padding-bottom:36px">
+            <div class="text-center">
+              <p class="text-xs text-hj-mute">Total</p>
+              <p id="donutCenter" class="num font-black text-lg">—</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== CATÁLOGO ===================== -->
+    <section class="pt-10" aria-label="Catálogo de flota">
+      <div class="flex flex-col sm:flex-row sm:items-center gap-3 mb-5">
+        <h2 class="text-xl font-extrabold">Unidades <span id="countUnits" class="num text-hj-soft font-bold"></span></h2>
+        <div class="sm:ml-auto flex gap-2 w-full sm:w-auto">
+          <div class="relative flex-1 sm:w-80">
+            <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-hj-soft"></i>
+            <input id="fBuscar" type="search" placeholder="Buscar por nombre, placa o tipo"
+              class="w-full h-10 pl-9 pr-3 rounded-md border border-hj-line text-sm" aria-label="Buscar unidad">
+          </div>
+          <select id="fOrden" class="h-10 px-2 rounded-md border border-hj-line text-sm bg-white" aria-label="Ordenar">
+            <option value="costo">Mayor costo</option>
+            <option value="reciente">Intervención reciente</option>
+            <option value="nombre">Nombre</option>
+          </select>
+        </div>
+      </div>
+      <div id="grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-5"></div>
+      <div id="empty" class="hidden text-center py-16 border border-dashed border-hj-line rounded-lg">
+        <i data-lucide="search-x" class="w-8 h-8 mx-auto text-hj-soft"></i>
+        <p class="mt-3 font-bold">Ninguna unidad coincide con los filtros</p>
+        <p class="text-sm text-hj-mute">Cambia la categoría, el rango de fechas o el texto de búsqueda.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="hj-band"><div class="y"></div><div class="g"></div></div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex justify-between text-xs text-hj-soft">
+      <span>Hajali Tractor · Departamento de Compras</span>
+      <span class="flex items-center gap-3"><span id="lastSync"></span><button id="btnSalir" class="hidden underline underline-offset-4 hover:text-hj-graphite">Cambiar código</button></span>
+    </div>
+  </footer>
+
+  <!-- ===================== MODAL: FICHA DE UNIDAD ===================== -->
+  <div id="mDetalle" class="modal" role="dialog" aria-modal="true" aria-labelledby="dTitulo">
+    <div class="scrim" data-close></div>
+    <div class="wrap relative h-full overflow-y-auto">
+      <div class="sheet relative bg-white max-w-5xl mx-auto sm:my-8 sm:rounded-lg overflow-hidden min-h-full sm:min-h-0">
+        <div id="dContenido"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== MODAL: FORMULARIO ===================== -->
+  <div id="mForm" class="modal" role="dialog" aria-modal="true" aria-labelledby="fTitulo">
+    <div class="scrim" data-close></div>
+    <div class="wrap relative h-full overflow-y-auto">
+      <div class="sheet relative bg-white max-w-3xl mx-auto sm:my-8 sm:rounded-lg overflow-hidden min-h-full sm:min-h-0">
+        <div class="hj-pattern sticky top-0 z-10 px-4 sm:px-6 py-4 flex items-center justify-between">
+          <h2 id="fTitulo" class="text-white font-extrabold text-lg">Registrar mantenimiento</h2>
+          <button data-close class="h-9 w-9 grid place-items-center rounded-md text-white hover:bg-white/10" aria-label="Cerrar">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+        <div class="h-1.5 bg-hj-yellow"></div>
+
+        <form id="frm" class="p-4 sm:p-6 space-y-6" novalidate>
+          <div class="grid sm:grid-cols-2 gap-4">
+            <label class="sm:col-span-2 text-sm font-semibold">Unidad
+              <select id="iUnidad" required class="mt-1 w-full h-11 px-3 rounded-md border border-hj-line font-normal bg-white"></select>
+            </label>
+            <label class="text-sm font-semibold">Fecha
+              <input id="iFecha" type="date" required class="mt-1 w-full h-11 px-3 rounded-md border border-hj-line font-normal">
+            </label>
+            <label class="text-sm font-semibold">Kilometraje / horas
+              <input id="iKm" type="text" placeholder="Ej. 192.110 km o 11.240 h" class="mt-1 w-full h-11 px-3 rounded-md border border-hj-line font-normal">
+            </label>
+          </div>
+
+          <fieldset>
+            <legend class="text-sm font-semibold mb-2">Dónde se realizó</legend>
+            <div class="seg grid grid-cols-2 rounded-md border border-hj-line p-1 gap-1 text-sm font-bold">
+              <input type="radio" name="taller" id="tInt" value="Interno" checked>
+              <label for="tInt" class="flex items-center justify-center gap-2 h-10 rounded"><i data-lucide="wrench" class="w-4 h-4"></i>Taller interno</label>
+              <input type="radio" name="taller" id="tExt" value="Externo">
+              <label for="tExt" class="ext flex items-center justify-center gap-2 h-10 rounded"><i data-lucide="building-2" class="w-4 h-4"></i>Taller externo</label>
+            </div>
+          </fieldset>
+
+          <div class="grid sm:grid-cols-2 gap-4">
+            <label id="wrapTallerExt" class="hidden text-sm font-semibold">Nombre del taller externo
+              <input id="iTallerExt" type="text" class="mt-1 w-full h-11 px-3 rounded-md border border-hj-line font-normal">
+            </label>
+            <label class="text-sm font-semibold">Mecánico responsable
+              <input id="iMecanico" type="text" class="mt-1 w-full h-11 px-3 rounded-md border border-hj-line font-normal">
+            </label>
+            <label class="text-sm font-semibold">Costo de mano de obra
+              <input id="iMO" type="number" inputmode="decimal" min="0" step="0.01" value="0" class="num mt-1 w-full h-11 px-3 rounded-md border border-hj-line font-normal text-right">
+            </label>
+          </div>
+
+          <!-- Repuestos dinámicos -->
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="text-sm font-semibold">Repuestos reemplazados</h3>
+              <button type="button" id="btnAddRep" class="shrink-0 whitespace-nowrap h-10 sm:h-9 px-3 rounded-md border-2 border-hj-graphite text-sm font-bold flex items-center gap-1.5 hover:bg-hj-cream">
+                <i data-lucide="plus" class="w-4 h-4"></i><span class="sm:hidden">Agregar</span><span class="hidden sm:inline">Agregar repuesto</span>
+              </button>
+            </div>
+            <div class="rounded-md border border-hj-line overflow-hidden">
+              <div class="hidden sm:grid grid-cols-12 gap-2 bg-hj-graphite text-white text-xs font-bold py-2 px-3">
+                <span class="col-span-5">Descripción</span><span class="col-span-2 text-right">Cantidad</span>
+                <span class="col-span-2 text-right">Costo unitario</span><span class="col-span-2 text-right">Subtotal</span><span class="col-span-1"></span>
+              </div>
+              <div id="repRows"></div>
+              <p id="repEmpty" class="text-sm text-hj-mute text-center py-4">Sin repuestos. Usa “Agregar repuesto” para desglosar las piezas.</p>
+            </div>
+          </div>
+
+          <label class="block text-sm font-semibold">Observaciones
+            <textarea id="iObs" rows="2" class="mt-1 w-full px-3 py-2 rounded-md border border-hj-line font-normal"></textarea>
+          </label>
+
+          <!-- Totales -->
+          <div class="rounded-md bg-hj-cream border-l-4 border-hj-yellow p-4 grid grid-cols-3 gap-3 text-sm">
+            <div><p class="text-hj-mute text-xs">Repuestos</p><p id="tRep" class="num font-bold">—</p></div>
+            <div><p class="text-hj-mute text-xs">Mano de obra</p><p id="tMO" class="num font-bold">—</p></div>
+            <div class="text-right"><p class="text-hj-mute text-xs">Total</p><p id="tTot" class="num font-black text-xl">—</p></div>
+          </div>
+
+          <p id="fError" class="hidden text-sm font-semibold text-hj-graphite bg-hj-cream border-l-4 border-hj-graphite px-3 py-2 rounded"></p>
+
+          <div class="sticky-actions sticky bottom-0 z-10 bg-white -mx-4 sm:-mx-6 px-4 sm:px-6 pt-3 border-t border-hj-line grid grid-cols-2 sm:flex gap-3 sm:justify-end">
+            <button type="button" data-close class="h-11 px-5 rounded-md border border-hj-line font-semibold">Cancelar</button>
+            <button id="btnGuardar" type="submit" class="h-11 px-6 rounded-md bg-hj-yellow text-hj-graphite font-extrabold flex items-center justify-center gap-2 disabled:opacity-60">
+              <i data-lucide="save" class="w-4 h-4"></i><span>Guardar mantenimiento</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Botón flotante (solo teléfono) -->
+  <button id="fab" class="fab sm:hidden fixed z-40 h-14 w-14 rounded-full bg-hj-yellow text-hj-graphite shadow-lg grid place-items-center" aria-label="Registrar mantenimiento">
+    <i data-lucide="plus" class="w-7 h-7"></i>
+  </button>
+
+  <!-- Toasts -->
+  <div id="toasts" class="fixed left-4 right-4 sm:left-auto z-[70] space-y-2" style="bottom:calc(84px + env(safe-area-inset-bottom,0px))" aria-live="polite"></div>
+
+<script>
+/* =========================================================================
+   CONFIGURACIÓN DE INTERFAZ
+   ========================================================================= */
+const UI = {
+  moneda: '$',               // símbolo que se muestra junto a los montos
+  locale: 'es-VE',
+  tipos: ['Carga', 'Maquinaria', 'Carro', 'Moto'],
+  tipoLabel: { Carga: 'Carga', Maquinaria: 'Maquinaria', Carro: 'Carros', Moto: 'Motos' },
+  tipoIcono: { Carga: 'truck', Maquinaria: 'tractor', Carro: 'car-front', Moto: 'bike' },
+  topUnidades: 12
+};
+
+const state = {
+  vehiculos: [],
+  filtros: { tipo: 'Todos', desde: '', hasta: '', q: '', orden: 'costo' },
+  chartMode: 'unidad',
+  charts: {},
+  generado: ''
+};
+
+/* =========================================================================
+   UTILIDADES
+   ========================================================================= */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const nf = new Intl.NumberFormat(UI.locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const nfInt = new Intl.NumberFormat(UI.locale);
+const money = v => `${UI.moneda} ${nf.format(Number(v) || 0)}`;
+const moneyShort = v => {
+  v = Number(v) || 0;
+  if (Math.abs(v) >= 1e6) return `${UI.moneda} ${nf.format(v / 1e6)} M`;
+  if (Math.abs(v) >= 1e4) return `${UI.moneda} ${nfInt.format(Math.round(v / 1e3))} mil`;
+  return money(v);
+};
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const fechaLarga = iso => {
+  if (!/^\d{4}-\d{2}-\d{2}/.test(iso || '')) return iso || '—';
+  const [y, m, d] = iso.split('-').map(Number);
+  return new Date(y, m - 1, d).toLocaleDateString(UI.locale, { day: '2-digit', month: 'short', year: 'numeric' });
+};
+const hoyISO = () => { const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0, 10); };
+const pct = (a, b) => b > 0 ? Math.round((a / b) * 1000) / 10 : 0;
+const icons = () => window.lucide && lucide.createIcons();
+
+function toast(msg, tipo = 'ok') {
+  const el = document.createElement('div');
+  el.className = `flex items-center gap-2 px-4 py-3 rounded-md shadow-lg text-sm font-semibold ${tipo === 'ok' ? 'bg-hj-graphite text-white' : 'bg-hj-cream text-hj-graphite border-l-4 border-hj-graphite'}`;
+  el.innerHTML = `<i data-lucide="${tipo === 'ok' ? 'check-circle-2' : 'alert-triangle'}" class="w-4 h-4 ${tipo === 'ok' ? 'text-hj-yellow' : ''}"></i><span>${esc(msg)}</span>`;
+  $('#toasts').appendChild(el); icons();
+  setTimeout(() => el.remove(), 4200);
+}
+
+/* =========================================================================
+   CAPA DE DATOS (google.script.run o modo demostración)
+   ========================================================================= */
+/* ▼▼▼ CONFIGURACIÓN DE LA APP ▼▼▼
+   Pega aquí la URL de la implementación de Apps Script (termina en /exec).
+   Si la dejas vacía, la app abre en modo demostración. */
+const APP = {
+  API_URL: '',
+  CLAVE_KEY: 'hj_flota_clave',
+  CACHE_KEY: 'hj_flota_cache'
+};
+/* ▲▲▲ ▲▲▲ */
+
+const EN_GAS = typeof google !== 'undefined' && google.script && google.script.run;
+const MODO = EN_GAS ? 'gas' : (APP.API_URL ? 'api' : 'demo');
+const memoria = {};  // respaldo si el navegador bloquea localStorage (p. ej. modo privado)
+const store = {
+  get: k => { try { const v = localStorage.getItem(k); if (v !== null) return v; } catch (e) {} return k in memoria ? memoria[k] : null; },
+  set: (k, v) => { memoria[k] = v; try { localStorage.setItem(k, v); } catch (e) {} },
+  del: k => { delete memoria[k]; try { localStorage.removeItem(k); } catch (e) {} }
+};
+class ErrorClave extends Error {}
+class ErrorRed extends Error {}
+
+async function llamarAPI(accion, datos) {
+  const clave = store.get(APP.CLAVE_KEY);
+  if (!clave) throw new ErrorClave('Falta el código de acceso.');
+  let resp;
+  try {
+    // text/plain evita la verificación CORS previa, que Apps Script no admite
+    resp = await fetch(APP.API_URL, {
+      method: 'POST', redirect: 'follow',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ accion, clave, datos })
+    });
+  } catch (e) { throw new ErrorRed('Sin conexión con el servidor.'); }
+  let json;
+  try { json = await resp.json(); } catch (e) { throw new Error('El servidor respondió con un formato inesperado. Revisa que la implementación permita el acceso a "Cualquier usuario".'); }
+  if (!json.ok) {
+    if (json.codigo === 'CLAVE') throw new ErrorClave(json.error);
+    throw new Error(json.error || 'Error del servidor.');
+  }
+  return json;
+}
+
+function api(fn, ...args) {
+  if (MODO === 'api') return llamarAPI({ getDatosFlota: 'datos', guardarMantenimiento: 'guardar' }[fn], args[0]);
+  return new Promise((resolve, reject) => {
+    if (MODO === 'demo') return DEMO[fn](...args).then(resolve, reject);
+    google.script.run
+      .withSuccessHandler(resolve)
+      .withFailureHandler(err => reject(err && err.message ? err : new Error(String(err))))[fn](...args);
+  });
+}
+
+function mostrarLogin(msg) {
+  $('#bootLoader').classList.add('hidden');
+  $('#loginScreen').classList.remove('hidden');
+  const e = $('#loginError');
+  e.textContent = msg || ''; e.classList.toggle('hidden', !msg);
+  setTimeout(() => $('#loginClave').focus(), 50);
+}
+
+function setOffline(texto) {
+  const bar = $('#offlineBar');
+  bar.textContent = texto || ''; bar.classList.toggle('hidden', !texto);
+}
+
+async function cargarDatos({ silencioso = false } = {}) {
+  const btn = $('#btnRefresh i, #btnRefresh svg');
+  btn && btn.classList.add('spin');
+  if (!silencioso && state.vehiculos.length) renderSkeleton();
+  try {
+    const res = await api('getDatosFlota');
+    state.vehiculos = res.vehiculos || [];
+    state.generado = res.generado || '';
+    if (MODO === 'api') store.set(APP.CACHE_KEY, JSON.stringify({ generado: state.generado, vehiculos: state.vehiculos }));
+    setOffline('');
+    $('#lastSync').textContent = state.generado ? `Datos al ${state.generado}` : '';
+    render();
+  } catch (e) {
+    if (e instanceof ErrorClave) { store.del(APP.CLAVE_KEY); mostrarLogin(e.message); return; }
+    const cache = MODO === 'api' && store.get(APP.CACHE_KEY);
+    if (e instanceof ErrorRed && cache) {
+      const c = JSON.parse(cache);
+      state.vehiculos = c.vehiculos || []; state.generado = c.generado || '';
+      $('#lastSync').textContent = `Datos al ${state.generado}`;
+      setOffline(`Sin conexión. Estás viendo los datos guardados del ${state.generado}.`);
+      render();
+    } else {
+      toast('No se pudieron cargar los datos: ' + e.message, 'err');
+      $('#grid').innerHTML = '';
+    }
+  } finally {
+    $('#bootLoader').classList.add('hidden');
+    const b = $('#btnRefresh i, #btnRefresh svg'); b && b.classList.remove('spin');
+  }
+}
+
+/* =========================================================================
+   FILTROS Y CÁLCULOS
+   ========================================================================= */
+function enRango(m) {
+  const { desde, hasta } = state.filtros;
+  if (desde && m.fecha < desde) return false;
+  if (hasta && m.fecha > hasta) return false;
+  return true;
+}
+
+/** Vehículos que pasan categoría + búsqueda, con sus mantenimientos dentro del rango. */
+function vista() {
+  const { tipo, q, orden } = state.filtros;
+  const t = q.trim().toLowerCase();
+  let lista = state.vehiculos
+    .filter(v => tipo === 'Todos' || v.tipo === tipo)
+    .filter(v => !t || [v.nombre, v.placa, v.tipo, v.marcaModelo, v.id].join(' ').toLowerCase().includes(t))
+    .map(v => {
+      const mnts = v.mantenimientos.filter(enRango);
+      return { ...v, mf: mnts, costo: mnts.reduce((a, m) => a + m.costoTotal, 0), ultima: mnts[0]?.fecha || '' };
+    });
+  const cmp = {
+    costo: (a, b) => b.costo - a.costo,
+    reciente: (a, b) => (b.ultima || '').localeCompare(a.ultima || ''),
+    nombre: (a, b) => a.nombre.localeCompare(b.nombre, 'es')
+  }[orden];
+  return lista.sort(cmp);
+}
+
+function totales(lista) {
+  const all = lista.flatMap(v => v.mf);
+  const tot = all.reduce((a, m) => a + m.costoTotal, 0);
+  const int = all.filter(m => m.tipoTaller === 'Interno').reduce((a, m) => a + m.costoTotal, 0);
+  return { all, tot, int, ext: tot - int, n: all.length, conMnt: lista.filter(v => v.mf.length).length };
+}
+
+/* =========================================================================
+   RENDER
+   ========================================================================= */
+function render() {
+  const lista = vista();
+  renderChips();
+  renderKPIs(lista);
+  renderCharts(lista);
+  renderGrid(lista);
+  icons();
+}
+
+function renderChips() {
+  const cuenta = t => state.vehiculos.filter(v => t === 'Todos' || v.tipo === t).length;
+  $('#chipsTipo').innerHTML = ['Todos', ...UI.tipos].map(t => `
+    <button class="chip shrink-0 whitespace-nowrap h-10 pl-3 pr-2 rounded-md border border-hj-line text-sm font-bold flex items-center gap-2 hover:border-hj-graphite"
+      data-tipo="${t}" aria-pressed="${state.filtros.tipo === t}">
+      ${t === 'Todos' ? '<i data-lucide="layers" class="w-4 h-4"></i>' : `<i data-lucide="${UI.tipoIcono[t]}" class="w-4 h-4"></i>`}
+      ${t === 'Todos' ? 'Toda la flota' : UI.tipoLabel[t]}
+      <span class="chip-n num text-xs px-1.5 py-0.5 rounded bg-hj-paper">${cuenta(t)}</span>
+    </button>`).join('');
+}
+
+function renderKPIs(lista) {
+  const k = totales(lista);
+  $('#kTotal').textContent = money(k.tot);
+  $('#kTotalSub').textContent = `${lista.length} unidades en vista, ${k.conMnt} con intervenciones en el período`;
+  $('#kInt').textContent = moneyShort(k.int);
+  $('#kExt').textContent = moneyShort(k.ext);
+  $('#kIntPct').textContent = `${pct(k.int, k.tot)} % del costo`;
+  $('#kExtPct').textContent = `${pct(k.ext, k.tot)} % del costo`;
+  $('#kBarInt').style.width = pct(k.int, k.tot) + '%';
+  $('#kBarExt').style.width = pct(k.ext, k.tot) + '%';
+  $('#kCount').textContent = nfInt.format(k.n);
+  const nInt = k.all.filter(m => m.tipoTaller === 'Interno').length;
+  $('#kCountSub').textContent = k.n ? `${nInt} internas y ${k.n - nInt} externas. Promedio ${money(k.tot / k.n)}` : 'Sin intervenciones en el período';
+  $('#countUnits').textContent = lista.length;
+}
+
+function renderCharts(lista) {
+  if (!window.Chart) return;
+  Chart.defaults.font.family = '"Gothic A1", system-ui, sans-serif';
+  Chart.defaults.color = '#555555';
+  const k = totales(lista);
+
+  // --- Barras
+  let labels, data;
+  if (state.chartMode === 'categoria') {
+    labels = UI.tipos.map(t => UI.tipoLabel[t]);
+    data = UI.tipos.map(t => lista.filter(v => v.tipo === t).reduce((a, v) => a + v.costo, 0));
+  } else {
+    const top = [...lista].filter(v => v.costo > 0).sort((a, b) => b.costo - a.costo).slice(0, UI.topUnidades);
+    labels = top.map(v => v.nombre);
+    data = top.map(v => v.costo);
+  }
+  const barCfg = {
+    type: 'bar',
+    data: { labels, datasets: [{ data, backgroundColor: '#F0B823', hoverBackgroundColor: '#363636', borderRadius: 3, maxBarThickness: 26 }] },
+    options: {
+      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => money(c.raw) } } },
+      scales: {
+        x: { grid: { color: '#eeeeee' }, ticks: { callback: v => moneyShort(v) } },
+        y: { grid: { display: false }, ticks: { color: '#363636', font: { weight: 600 },
+             callback: function (v) { const l = this.getLabelForValue(v); const max = window.innerWidth < 640 ? 14 : 22; return l.length > max ? l.slice(0, max - 1) + '…' : l; } } }
+      }
+    }
+  };
+  if (state.charts.bar) { state.charts.bar.data = barCfg.data; state.charts.bar.update(); }
+  else state.charts.bar = new Chart($('#chBar'), barCfg);
+
+  // --- Dona
+  const donutData = { labels: ['Taller interno', 'Taller externo'],
+    datasets: [{ data: [k.int, k.ext], backgroundColor: ['#363636', '#F0B823'], borderColor: '#fff', borderWidth: 3, hoverOffset: 6 }] };
+  if (state.charts.donut) { state.charts.donut.data = donutData; state.charts.donut.update(); }
+  else state.charts.donut = new Chart($('#chDonut'), {
+    type: 'doughnut', data: donutData,
+    options: { responsive: true, maintainAspectRatio: false, cutout: '68%',
+      plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, pointStyle: 'rectRounded', padding: 16 } },
+        tooltip: { callbacks: { label: c => `${c.label}: ${money(c.raw)} (${pct(c.raw, k.tot || 1)} %)` } } } }
+  });
+  $('#donutCenter').textContent = moneyShort(k.tot);
+  $$('.modeBtn').forEach(b => {
+    const on = b.dataset.mode === state.chartMode;
+    b.className = `modeBtn px-3 py-1.5 rounded ${on ? 'bg-hj-graphite text-white' : 'text-hj-mute hover:text-hj-graphite'}`;
+    b.setAttribute('aria-pressed', on);
+  });
+}
+
+function fotoHTML(v, clases) {
+  const ph = `<div class="ph ${clases} ${v.foto ? 'hidden' : 'grid'} place-items-center bg-hj-paper hj-ph">
+      <div class="text-center text-hj-soft"><i data-lucide="${UI.tipoIcono[v.tipo] || 'truck'}" class="w-12 h-12 mx-auto" stroke-width="1.4"></i>
+      <p class="text-xs mt-2">Sin fotografía</p></div></div>`;
+  const img = v.foto ? `<img src="${esc(v.foto)}" alt="${esc(v.nombre)}" loading="lazy" referrerpolicy="no-referrer"
+      class="${clases} object-cover" onerror="this.classList.add('hidden');this.nextElementSibling.classList.remove('hidden');this.nextElementSibling.classList.add('grid')">` : '';
+  return img + ph;
+}
+
+const estadoDot = e => {
+  const s = (e || '').toLowerCase();
+  const c = s.includes('taller') ? 'bg-hj-yellow' : s.includes('inact') ? 'bg-hj-soft' : 'bg-hj-graphite';
+  return `<span class="inline-flex items-center gap-1.5 text-xs text-hj-mute"><span class="w-2 h-2 rounded-full ${c}"></span>${esc(e)}</span>`;
+};
+
+function renderGrid(lista) {
+  $('#empty').classList.toggle('hidden', lista.length > 0);
+  $('#grid').innerHTML = lista.map(v => `
+    <button class="card group text-left rounded-lg border border-hj-line bg-white overflow-hidden hover:border-hj-graphite focus-visible:border-hj-graphite flex flex-row sm:flex-col" data-id="${esc(v.id)}">
+      <div class="relative w-28 shrink-0 sm:w-auto aspect-auto min-h-[112px] sm:aspect-[4/3] bg-hj-paper">
+        ${fotoHTML(v, 'absolute inset-0 w-full h-full')}
+        <span class="absolute left-0 top-2 sm:top-3 bg-hj-graphite text-white text-[10px] sm:text-xs font-bold pl-2 sm:pl-3 pr-2 sm:pr-2.5 py-1 flex items-center gap-1.5">
+          <i data-lucide="${UI.tipoIcono[v.tipo] || 'truck'}" class="w-3.5 h-3.5 text-hj-yellow"></i>${esc(v.tipo)}
+        </span>
+      </div>
+      <div class="hidden sm:block h-1 bg-hj-yellow origin-left scale-x-0 group-hover:scale-x-100 transition-transform"></div>
+      <div class="p-3 sm:p-4 flex flex-col gap-2 sm:gap-3 flex-1 min-w-0">
+        <div class="flex flex-col-reverse sm:flex-row items-start sm:justify-between gap-1 sm:gap-2">
+          <div class="min-w-0 w-full">
+            <h3 class="font-extrabold leading-snug truncate">${esc(v.nombre)}</h3>
+            <p class="text-xs text-hj-mute truncate">${esc(v.marcaModelo)}${v.ano ? ' (' + esc(v.ano) + ')' : ''}</p>
+          </div>
+          <span class="plate shrink-0 text-[11px] font-extrabold px-2 py-0.5 rounded sm:ml-auto">${esc(v.placa || v.id)}</span>
+        </div>
+        <div class="mt-auto flex items-end justify-between gap-2 pt-2 border-t border-hj-line">
+          <div>
+            <p class="text-[11px] text-hj-mute">Costo acumulado</p>
+            <p class="num font-black text-lg">${money(v.costo)}</p>
+          </div>
+          <div class="text-right">
+            ${estadoDot(v.estado)}
+            <p class="text-[11px] text-hj-mute mt-0.5">${v.mf.length} ${v.mf.length === 1 ? 'intervención' : 'intervenciones'}</p>
+          </div>
+        </div>
+      </div>
+    </button>`).join('');
+}
+
+function renderSkeleton() {
+  $('#grid').innerHTML = Array.from({ length: 8 }, () => `
+    <div class="rounded-lg border border-hj-line overflow-hidden">
+      <div class="aspect-[4/3] skel"></div>
+      <div class="p-4 space-y-3"><div class="h-4 w-2/3 skel rounded"></div><div class="h-3 w-1/2 skel rounded"></div><div class="h-6 w-1/3 skel rounded mt-4"></div></div>
+    </div>`).join('');
+}
+
+/* =========================================================================
+   FICHA DETALLADA
+   ========================================================================= */
+function badgeTaller(m) {
+  return m.tipoTaller === 'Externo'
+    ? `<span class="inline-flex items-center gap-1 text-xs font-bold px-2 py-1 rounded bg-hj-yellow text-hj-graphite"><i data-lucide="building-2" class="w-3.5 h-3.5"></i>Taller externo</span>`
+    : `<span class="inline-flex items-center gap-1 text-xs font-bold px-2 py-1 rounded bg-hj-graphite text-white"><i data-lucide="wrench" class="w-3.5 h-3.5 text-hj-yellow"></i>Taller interno</span>`;
+}
+
+function abrirDetalle(id) {
+  const base = vista().find(v => v.id === id) || state.vehiculos.find(v => v.id === id);
+  if (!base) return;
+  const v = base.mf ? base : { ...base, mf: base.mantenimientos.filter(enRango) };
+  const tot = v.mf.reduce((a, m) => a + m.costoTotal, 0);
+  const int = v.mf.filter(m => m.tipoTaller === 'Interno').reduce((a, m) => a + m.costoTotal, 0);
+  const rep = v.mf.reduce((a, m) => a + m.costoRepuestos, 0);
+  const filtroActivo = state.filtros.desde || state.filtros.hasta;
+
+  const spec = (k, val) => `<div class="py-2 border-b border-hj-line"><dt class="text-[11px] text-hj-mute">${k}</dt><dd class="font-bold text-sm">${esc(val || '—')}</dd></div>`;
+
+  $('#dContenido').innerHTML = `
+    <button data-close class="absolute right-3 top-3 z-10 h-10 w-10 grid place-items-center rounded-full bg-white shadow hover:bg-hj-paper" style="margin-top:env(safe-area-inset-top,0px)" aria-label="Cerrar"><i data-lucide="x" class="w-5 h-5"></i></button>
+    <div class="grid md:grid-cols-5">
+      <div class="md:col-span-2 relative bg-hj-paper aspect-[16/10] md:aspect-auto md:min-h-[320px]">
+        ${fotoHTML(v, 'absolute inset-0 w-full h-full')}
+      </div>
+      <div class="md:col-span-3 p-4 sm:p-6 relative">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="bg-hj-graphite text-white text-xs font-bold px-2.5 py-1 rounded flex items-center gap-1.5"><i data-lucide="${UI.tipoIcono[v.tipo] || 'truck'}" class="w-3.5 h-3.5 text-hj-yellow"></i>${esc(v.tipo)}</span>
+          ${estadoDot(v.estado)}
+        </div>
+        <h2 id="dTitulo" class="text-2xl font-black pr-10">${esc(v.nombre)}</h2>
+        <span class="plate inline-block mt-2 text-sm font-extrabold px-3 py-1 rounded">${esc(v.placa || v.id)}</span>
+        <dl class="grid grid-cols-2 sm:grid-cols-3 gap-x-5 mt-4">
+          ${spec('Código interno', v.id)}${spec('Marca / modelo', v.marcaModelo)}${spec('Año', v.ano)}
+        </dl>
+        <div class="grid grid-cols-3 gap-3 mt-5">
+          <div class="hj-pattern rounded-md p-3 text-white"><p class="text-[11px] text-white/75">Costo ${filtroActivo ? 'en el período' : 'acumulado'}</p><p class="num font-black text-hj-yellow text-base sm:text-lg leading-tight">${moneyShort(tot)}</p></div>
+          <div class="rounded-md border border-hj-line p-3"><p class="text-[11px] text-hj-mute">Interno / externo</p><p class="num font-bold text-sm leading-tight">${pct(int, tot)} % / ${pct(tot - int, tot)} %</p></div>
+          <div class="rounded-md border border-hj-line p-3"><p class="text-[11px] text-hj-mute">En repuestos</p><p class="num font-bold text-sm leading-tight">${moneyShort(rep)}</p></div>
+        </div>
+      </div>
+    </div>
+    <div class="hj-band"><div class="y"></div><div class="g"></div></div>
+
+    <div class="p-4 sm:p-6">
+      <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
+        <h3 class="text-lg font-extrabold">Historial de mantenimientos <span class="text-hj-soft num">${v.mf.length}</span></h3>
+        <button class="btnNuevoUnidad h-10 px-4 rounded-md bg-hj-yellow font-bold text-sm flex items-center gap-2" data-id="${esc(v.id)}"><i data-lucide="plus" class="w-4 h-4"></i>Registrar mantenimiento</button>
+      </div>
+      ${filtroActivo ? `<p class="text-xs text-hj-mute mb-4 bg-hj-cream border-l-4 border-hj-yellow px-3 py-2 rounded">Mostrando solo intervenciones entre ${state.filtros.desde ? fechaLarga(state.filtros.desde) : 'el inicio'} y ${state.filtros.hasta ? fechaLarga(state.filtros.hasta) : 'hoy'}.</p>` : ''}
+      ${v.mf.length ? `<ol class="relative border-l-2 border-hj-line ml-1 sm:ml-2 space-y-3 sm:space-y-4">${v.mf.map(itemTimeline).join('')}</ol>`
+        : `<div class="text-center py-10 border border-dashed border-hj-line rounded-lg"><i data-lucide="clipboard-list" class="w-8 h-8 mx-auto text-hj-soft"></i><p class="mt-2 font-bold">Esta unidad no tiene intervenciones${filtroActivo ? ' en el período' : ''}</p><p class="text-sm text-hj-mute">Registra la primera con el botón de arriba.</p></div>`}
+    </div>`;
+  abrirModal('#mDetalle');
+  icons();
+}
+
+function itemTimeline(m) {
+  const reps = m.repuestos || [];
+  const accId = 'acc-' + m.id.replace(/[^a-z0-9_-]/gi, '');
+  return `
+  <li class="ml-4 sm:ml-6">
+    <span class="absolute -left-[9px] mt-5 w-4 h-4 rounded-full border-[3px] border-white ${m.tipoTaller === 'Externo' ? 'bg-hj-yellow' : 'bg-hj-graphite'} ring-1 ring-hj-line"></span>
+    <div class="rounded-lg border border-hj-line overflow-hidden">
+      <button class="acc w-full text-left p-3 sm:p-4 flex flex-wrap items-center gap-x-4 gap-y-2 hover:bg-hj-paper" aria-expanded="false" aria-controls="${accId}">
+        <div class="w-24 sm:w-28 shrink-0"><p class="num font-extrabold text-sm">${fechaLarga(m.fecha)}</p><p class="text-[11px] text-hj-mute">${esc(m.kmHoras || '')}</p></div>
+        <div class="flex-1 min-w-[180px]">
+          <div class="flex flex-wrap items-center gap-2">${badgeTaller(m)}
+            ${m.tipoTaller === 'Externo' && m.tallerExterno ? `<span class="text-sm font-bold">${esc(m.tallerExterno)}</span>` : ''}</div>
+          <p class="text-xs text-hj-mute mt-1 truncate">${m.mecanico ? 'Responsable: ' + esc(m.mecanico) : ''}${m.observaciones ? (m.mecanico ? '. ' : '') + esc(m.observaciones) : ''}</p>
+        </div>
+        <div class="text-right ml-auto"><p class="num font-black">${money(m.costoTotal)}</p><p class="text-[11px] text-hj-mute">${reps.length} ${reps.length === 1 ? 'repuesto' : 'repuestos'}</p></div>
+        <i data-lucide="chevron-down" class="chev w-5 h-5 text-hj-soft"></i>
+      </button>
+      <div class="acc-body" id="${accId}"><div>
+        <div class="border-t border-hj-line p-3 sm:p-4 bg-hj-paper">
+          ${reps.length ? `
+          <ul class="sm:hidden rounded-md border border-hj-line bg-white divide-y divide-hj-line">${reps.map(r => `
+            <li class="p-3 flex justify-between gap-3"><div class="min-w-0"><p class="font-bold text-sm break-words">${esc(r.descripcion)}</p>
+            <p class="num text-xs text-hj-mute">${nf.format(r.cantidad).replace(/,00$/, '')} × ${money(r.costoUnitario)}</p></div>
+            <p class="num font-bold text-sm whitespace-nowrap">${money(r.subtotal)}</p></li>`).join('')}</ul>
+          <div class="hidden sm:block overflow-x-auto rounded-md border border-hj-line bg-white">
+            <table class="w-full text-sm min-w-[480px]" style="table-layout:fixed">
+              <colgroup><col style="width:46%"><col style="width:14%"><col style="width:20%"><col style="width:20%"></colgroup>
+              <thead class="bg-hj-graphite text-white text-xs"><tr>
+                <th class="text-left font-bold py-2 pl-3 pr-2">Repuesto</th><th class="text-right font-bold py-2 px-2">Cantidad</th>
+                <th class="text-right font-bold py-2 px-2">Costo unitario</th><th class="text-right font-bold py-2 pl-2 pr-3">Subtotal</th></tr></thead>
+              <tbody>${reps.map((r, i) => `<tr class="${i % 2 ? 'bg-hj-paper' : ''} border-b border-hj-line">
+                <td class="py-2 pl-3 pr-2 break-words">${esc(r.descripcion)}</td><td class="num text-right py-2 px-2">${nf.format(r.cantidad).replace(/,00$/, '')}</td>
+                <td class="num text-right py-2 px-2 whitespace-nowrap">${money(r.costoUnitario)}</td><td class="num text-right py-2 pl-2 pr-3 font-bold whitespace-nowrap">${money(r.subtotal)}</td></tr>`).join('')}
+              </tbody>
+            </table>
+          </div>` : `<p class="text-sm text-hj-mute">No se desglosaron repuestos en esta intervención.</p>`}
+          <dl class="grid grid-cols-3 gap-3 mt-3 text-sm">
+            <div><dt class="text-[11px] text-hj-mute">Repuestos</dt><dd class="num font-bold">${money(m.costoRepuestos)}</dd></div>
+            <div><dt class="text-[11px] text-hj-mute">Mano de obra</dt><dd class="num font-bold">${money(m.costoManoObra)}</dd></div>
+            <div class="text-right"><dt class="text-[11px] text-hj-mute">Total</dt><dd class="num font-black">${money(m.costoTotal)}</dd></div>
+          </dl>
+          ${m.observaciones ? `<p class="text-sm mt-3"><span class="text-hj-mute">Observaciones:</span> ${esc(m.observaciones)}</p>` : ''}
+          <p class="text-[11px] text-hj-soft mt-2">${esc(m.id)}</p>
+        </div>
+      </div></div>
+    </div>
+  </li>`;
+}
+
+/* =========================================================================
+   MODALES
+   ========================================================================= */
+let ultimoFoco = null;
+const NAV = { saltar: 0, gas: !!(EN_GAS && google.script.history) };
+function navPush(id) {
+  try { NAV.gas ? google.script.history.push({ modal: id }) : history.pushState({ modal: id }, ''); } catch (e) {}
+}
+function navAtras() {                 // se ejecuta con el botón/gesto "atrás" del teléfono
+  if (NAV.saltar > 0) { NAV.saltar--; return; }
+  const abiertos = $$('.modal.open');
+  if (abiertos.length) cerrarModal(abiertos[abiertos.length - 1], true);
+}
+function abrirModal(sel) {
+  const m = $(sel);
+  if (m.classList.contains('open')) return;
+  ultimoFoco = document.activeElement;
+  m.classList.add('open'); document.body.classList.add('modal-open'); document.body.style.overflow = 'hidden';
+  m.querySelector('.wrap').scrollTop = 0;
+  navPush(m.id);
+  // En pantallas táctiles no se enfoca un campo para no abrir el teclado de golpe
+  if (window.matchMedia('(hover: hover)').matches)
+    setTimeout(() => (m.querySelector('select, input, [data-close]') || m).focus(), 30);
+}
+function cerrarModal(m, desdeNavegacion = false) {
+  if (!m.classList.contains('open')) return;
+  m.classList.remove('open');
+  if (!$$('.modal.open').length) { document.body.classList.remove('modal-open'); document.body.style.overflow = ''; }
+  if (!desdeNavegacion) {
+    NAV.saltar++; try { history.back(); } catch (e) {}
+    setTimeout(() => { NAV.saltar = 0; }, 800);
+  }
+  ultimoFoco && ultimoFoco.focus && window.matchMedia('(hover: hover)').matches && ultimoFoco.focus();
+}
+
+/* =========================================================================
+   FORMULARIO
+   ========================================================================= */
+function abrirFormulario(idUnidad = '') {
+  const sel = $('#iUnidad');
+  sel.innerHTML = '<option value="">Selecciona una unidad</option>' + UI.tipos.map(t => {
+    const vs = state.vehiculos.filter(v => v.tipo === t).sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
+    return vs.length ? `<optgroup label="${UI.tipoLabel[t]}">${vs.map(v => `<option value="${esc(v.id)}">${esc(v.nombre)} (${esc(v.placa || v.id)})</option>`).join('')}</optgroup>` : '';
+  }).join('');
+  $('#frm').reset();
+  sel.value = idUnidad;
+  $('#iFecha').value = hoyISO();
+  $('#iMO').value = '';
+  $('#repRows').innerHTML = '';
+  agregarFilaRep();
+  toggleTaller();
+  $('#fError').classList.add('hidden');
+  recalcular();
+  abrirModal('#mForm');
+  icons();
+}
+
+function agregarFilaRep() {
+  const tr = document.createElement('div');
+  tr.className = 'rRow grid grid-cols-12 gap-2 items-center px-3 py-2.5 sm:py-1.5 border-b border-hj-line';
+  tr.innerHTML = `
+    <div class="col-span-12 sm:col-span-5"><input class="rDesc w-full h-10 sm:h-9 px-2 rounded border border-hj-line" placeholder="Ej. Filtro de aceite" aria-label="Descripción del repuesto" autocomplete="off"></div>
+    <label class="col-span-3 sm:col-span-2"><span class="sm:hidden text-[11px] text-hj-mute">Cant.</span><input class="rCant num w-full h-10 sm:h-9 px-2 rounded border border-hj-line text-right" type="number" inputmode="decimal" min="0" step="any" value="1" aria-label="Cantidad"></label>
+    <label class="col-span-4 sm:col-span-2"><span class="sm:hidden text-[11px] text-hj-mute">Costo unit.</span><input class="rUnit num w-full h-10 sm:h-9 px-2 rounded border border-hj-line text-right" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0,00" aria-label="Costo unitario"></label>
+    <div class="col-span-4 sm:col-span-2 text-right self-end sm:self-center"><span class="sm:hidden block text-[11px] text-hj-mute">Subtotal</span><span class="rSub num font-bold whitespace-nowrap text-sm">${money(0)}</span></div>
+    <div class="col-span-1 flex justify-end self-end sm:self-center"><button type="button" class="rDel h-10 w-10 sm:h-8 sm:w-8 grid place-items-center rounded hover:bg-hj-cream" aria-label="Eliminar repuesto"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div>`;
+  $('#repRows').appendChild(tr);
+  icons(); recalcular();
+  return tr;
+}
+
+function recalcular() {
+  let rep = 0;
+  $$('#repRows .rRow').forEach(tr => {
+    const sub = (parseFloat($('.rCant', tr).value) || 0) * (parseFloat($('.rUnit', tr).value) || 0);
+    $('.rSub', tr).textContent = money(sub);
+    rep += sub;
+  });
+  const mo = parseFloat($('#iMO').value) || 0;
+  $('#tRep').textContent = money(rep);
+  $('#tMO').textContent = money(mo);
+  $('#tTot').textContent = money(rep + mo);
+  $('#repEmpty').classList.toggle('hidden', $$('#repRows .rRow').length > 0);
+}
+
+function toggleTaller() {
+  const ext = $('#tExt').checked;
+  $('#wrapTallerExt').classList.toggle('hidden', !ext);
+  $('#iTallerExt').required = ext;
+}
+
+function leerFormulario() {
+  return {
+    idUnidad: $('#iUnidad').value,
+    fecha: $('#iFecha').value,
+    tipoTaller: $('#tExt').checked ? 'Externo' : 'Interno',
+    tallerExterno: $('#iTallerExt').value.trim(),
+    mecanico: $('#iMecanico').value.trim(),
+    costoManoObra: parseFloat($('#iMO').value) || 0,
+    kmHoras: $('#iKm').value.trim(),
+    observaciones: $('#iObs').value.trim(),
+    repuestos: $$('#repRows .rRow').map(tr => ({
+      descripcion: $('.rDesc', tr).value.trim(),
+      cantidad: parseFloat($('.rCant', tr).value) || 0,
+      costoUnitario: parseFloat($('.rUnit', tr).value) || 0
+    })).filter(r => r.descripcion || r.costoUnitario)
+  };
+}
+
+function validar(d) {
+  if (!d.idUnidad) return ['Selecciona la unidad.', '#iUnidad'];
+  if (!d.fecha) return ['Indica la fecha de la intervención.', '#iFecha'];
+  if (d.tipoTaller === 'Externo' && !d.tallerExterno) return ['Escribe el nombre del taller externo.', '#iTallerExt'];
+  const sinDesc = d.repuestos.findIndex(r => !r.descripcion);
+  if (sinDesc > -1) return [`Falta la descripción del repuesto ${sinDesc + 1}.`, null];
+  const malCant = d.repuestos.find(r => r.cantidad <= 0);
+  if (malCant) return [`La cantidad de “${malCant.descripcion}” debe ser mayor que 0.`, null];
+  const total = d.costoManoObra + d.repuestos.reduce((a, r) => a + r.cantidad * r.costoUnitario, 0);
+  if (total <= 0) return ['Registra la mano de obra o al menos un repuesto con costo.', '#iMO'];
+  return null;
+}
+
+async function guardar(ev) {
+  ev.preventDefault();
+  const d = leerFormulario();
+  const err = validar(d);
+  const box = $('#fError');
+  if (err) { box.textContent = err[0]; box.classList.remove('hidden'); err[1] && $(err[1]).focus(); return; }
+  box.classList.add('hidden');
+
+  const btn = $('#btnGuardar');
+  btn.disabled = true;
+  btn.innerHTML = `<svg class="spin w-4 h-4" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-opacity=".25" stroke-width="3"/><path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg><span>Guardando…</span>`;
+  try {
+    const res = await api('guardarMantenimiento', d);
+    cerrarModal($('#mForm'));
+    toast(`Mantenimiento guardado (${money(res.costoTotal)})`);
+    await cargarDatos({ silencioso: true });
+    if ($('#mDetalle').classList.contains('open')) abrirDetalle(d.idUnidad);
+  } catch (e) {
+    if (e instanceof ErrorClave) { store.del(APP.CLAVE_KEY); cerrarModal($('#mForm')); mostrarLogin(e.message); return; }
+    box.textContent = e instanceof ErrorRed
+      ? 'No se guardó: no hay conexión. Tus datos siguen en el formulario; intenta de nuevo cuando tengas señal.'
+      : 'No se guardó: ' + e.message;
+    box.classList.remove('hidden');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = `<i data-lucide="save" class="w-4 h-4"></i><span>Guardar mantenimiento</span>`; icons();
+  }
+}
+
+/* =========================================================================
+   EVENTOS
+   ========================================================================= */
+function bind() {
+  $('#chipsTipo').addEventListener('click', e => {
+    const b = e.target.closest('.chip'); if (!b) return;
+    state.filtros.tipo = b.dataset.tipo; render();
+  });
+  $('#fDesde').addEventListener('change', e => { state.filtros.desde = e.target.value; render(); });
+  $('#fHasta').addEventListener('change', e => { state.filtros.hasta = e.target.value; render(); });
+  let t; $('#fBuscar').addEventListener('input', e => { clearTimeout(t); t = setTimeout(() => { state.filtros.q = e.target.value; render(); }, 150); });
+  $('#fOrden').addEventListener('change', e => { state.filtros.orden = e.target.value; render(); });
+  $('#btnLimpiar').addEventListener('click', () => {
+    Object.assign(state.filtros, { tipo: 'Todos', desde: '', hasta: '', q: '' });
+    $('#fDesde').value = $('#fHasta').value = $('#fBuscar').value = ''; render();
+  });
+  $$('.modeBtn').forEach(b => b.addEventListener('click', () => { state.chartMode = b.dataset.mode; renderCharts(vista()); }));
+
+  $('#grid').addEventListener('click', e => { const c = e.target.closest('.card'); c && abrirDetalle(c.dataset.id); });
+  $('#btnNuevo').addEventListener('click', () => abrirFormulario());
+  $('#fab').addEventListener('click', () => abrirFormulario());
+  if (NAV.gas) google.script.history.setChangeHandler(navAtras); else window.addEventListener('popstate', navAtras);
+  $('#btnRefresh').addEventListener('click', () => cargarDatos());
+
+  $('#mDetalle').addEventListener('click', e => {
+    const acc = e.target.closest('.acc');
+    if (acc) { acc.setAttribute('aria-expanded', acc.getAttribute('aria-expanded') !== 'true'); return; }
+    const nu = e.target.closest('.btnNuevoUnidad');
+    if (nu) { abrirFormulario(nu.dataset.id); return; }
+  });
+
+  $$('.modal').forEach(m => m.addEventListener('click', e => {
+    if (e.target.closest('[data-close]') || e.target.classList.contains('wrap')) cerrarModal(m);
+  }));
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { const abiertos = $$('.modal.open'); abiertos.length && cerrarModal(abiertos[abiertos.length - 1]); }
+  });
+
+  $('#btnAddRep').addEventListener('click', () => $('.rDesc', agregarFilaRep()).focus());
+  $('#repRows').addEventListener('input', recalcular);
+  $('#repRows').addEventListener('click', e => { const b = e.target.closest('.rDel'); if (b) { b.closest('.rRow').remove(); recalcular(); } });
+  $('#iMO').addEventListener('input', recalcular);
+  $$('input[name=taller]').forEach(r => r.addEventListener('change', toggleTaller));
+  $('#frm').addEventListener('submit', guardar);
+}
+
+/* =========================================================================
+   MODO DEMOSTRACIÓN (solo fuera de Apps Script, para previsualizar)
+   ========================================================================= */
+const DEMO = (() => {
+  const U = [
+    ['CG-001', 'Compactador 01', 'Carga', 'A45BC2D', 'Mack Granite GU813', 2017, 'Operativo'],
+    ['CG-002', 'Volteo 02', 'Carga', 'A12KL9P', 'International 7600', 2015, 'En taller'],
+    ['CG-003', 'Cisterna 03', 'Carga', 'A78MN4R', 'Ford Cargo 1721', 2016, 'Operativo'],
+    ['MQ-001', 'Tractor oruga D6', 'Maquinaria', 'FICHA-MQ01', 'Caterpillar D6T', 2014, 'Operativo'],
+    ['MQ-002', 'Retroexcavadora 420', 'Maquinaria', 'FICHA-MQ02', 'Caterpillar 420F', 2018, 'Operativo'],
+    ['MQ-003', 'Compactador de relleno', 'Maquinaria', 'FICHA-MQ03', 'Bomag BC 772', 2013, 'En taller'],
+    ['CR-001', 'Pick-up supervisión', 'Carro', 'AB123CD', 'Toyota Hilux 2.7', 2020, 'Operativo'],
+    ['CR-002', 'Camioneta compras', 'Carro', 'AD456EF', 'Chevrolet Silverado', 2012, 'Operativo'],
+    ['MT-001', 'Moto mensajería', 'Moto', 'AC1B23D', 'Bera SBR 150', 2022, 'Operativo'],
+    ['MT-002', 'Moto vigilancia', 'Moto', 'AE4F56G', 'Empire Owen 150', 2021, 'Inactivo']
+  ];
+  const piezas = {
+    Carga: [['Aceite 15W40 (galón)', 32], ['Filtro de aceite', 38], ['Kit de sellos cilindro', 850], ['Neumático 11R22.5', 420], ['Bandas de freno', 180]],
+    Maquinaria: [['Zapata de oruga', 250], ['Rodillo inferior', 300], ['Filtro hidráulico', 95], ['Diente de cucharón', 60], ['Manguera hidráulica', 110]],
+    Carro: [['Juego de pastillas', 145], ['Aceite 5W30 (litro)', 9], ['Batería 12V', 160], ['Amortiguador', 85]],
+    Moto: [['Kit de arrastre', 48], ['Aceite 20W50 (litro)', 7], ['Caucho trasero', 45], ['Bujía', 6]]
+  };
+  const talleres = ['Hidráulica Lara', 'Tren de Rodaje C.A.', 'Frenos Occidente', 'Electroauto Barquisimeto'];
+  const mecs = ['José Pérez', 'Carlos Ruiz', 'Luis Mora', 'Andrés Colmenárez'];
+  let seed = 7; const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
+  const pick = a => a[Math.floor(rnd() * a.length)];
+  const vehiculos = U.map(([id, nombre, tipo, placa, marcaModelo, ano, estado]) => {
+    const n = 1 + Math.floor(rnd() * 5);
+    const mantenimientos = Array.from({ length: n }, (_, i) => {
+      const ext = rnd() < (tipo === 'Maquinaria' ? .6 : .35);
+      const repuestos = Array.from({ length: 1 + Math.floor(rnd() * 3) }, (_, j) => {
+        const [d, c] = pick(piezas[tipo]); const q = 1 + Math.floor(rnd() * (c < 50 ? 8 : 3));
+        return { id: `R${j}`, descripcion: d, cantidad: q, costoUnitario: c, subtotal: q * c };
+      });
+      const cr = repuestos.reduce((a, r) => a + r.subtotal, 0);
+      const mo = Math.round((ext ? .45 : .2) * cr);
+      const mes = 1 + Math.floor(rnd() * 9), dia = 1 + Math.floor(rnd() * 27);
+      return { id: `MNT-${id}-${i}`, fecha: `2026-${String(mes).padStart(2, '0')}-${String(dia).padStart(2, '0')}`,
+        tipoTaller: ext ? 'Externo' : 'Interno', tallerExterno: ext ? pick(talleres) : '', mecanico: pick(mecs),
+        costoManoObra: mo, costoRepuestos: cr, costoTotal: mo + cr,
+        kmHoras: tipo === 'Maquinaria' ? `${nfInt.format(8000 + Math.floor(rnd() * 5000))} h` : `${nfInt.format(20000 + Math.floor(rnd() * 180000))} km`,
+        observaciones: ext ? 'Trabajo especializado fuera de planta' : 'Mantenimiento preventivo', repuestos };
+    }).sort((a, b) => b.fecha.localeCompare(a.fecha));
+    return { id, nombre, tipo, placa, marcaModelo, ano, foto: '', estado, costoTotal: mantenimientos.reduce((a, m) => a + m.costoTotal, 0), mantenimientos };
+  });
+  const wait = ms => new Promise(r => setTimeout(r, ms));
+  return {
+    async getDatosFlota() { await wait(600); return { ok: true, generado: new Date().toLocaleString(UI.locale), vehiculos: JSON.parse(JSON.stringify(vehiculos)) }; },
+    async guardarMantenimiento(d) {
+      await wait(700);
+      const v = vehiculos.find(x => x.id === d.idUnidad);
+      const repuestos = d.repuestos.map((r, i) => ({ id: 'R' + i, ...r, subtotal: r.cantidad * r.costoUnitario }));
+      const cr = repuestos.reduce((a, r) => a + r.subtotal, 0);
+      const m = { id: 'MNT-DEMO-' + Date.now(), fecha: d.fecha, tipoTaller: d.tipoTaller, tallerExterno: d.tallerExterno, mecanico: d.mecanico,
+        costoManoObra: d.costoManoObra, costoRepuestos: cr, costoTotal: cr + d.costoManoObra, kmHoras: d.kmHoras, observaciones: d.observaciones, repuestos };
+      v.mantenimientos.unshift(m); v.mantenimientos.sort((a, b) => b.fecha.localeCompare(a.fecha));
+      return { ok: true, id: m.id, costoTotal: m.costoTotal };
+    }
+  };
+})();
+
+/* =========================================================================
+   INICIO
+   ========================================================================= */
+let eventoInstalar = null;
+const esStandalone = () => window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+
+function prepararApp() {
+  // Service worker: permite instalar la app y abrirla sin señal
+  if (MODO !== 'gas' && 'serviceWorker' in navigator && location.protocol === 'https:') {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
+  // Android / Chrome: botón "Instalar"
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault(); eventoInstalar = e;
+    $('#btnInstalar').classList.remove('hidden'); $('#btnInstalar').classList.add('flex');
+  });
+  $('#btnInstalar').addEventListener('click', async () => {
+    if (!eventoInstalar) return;
+    eventoInstalar.prompt(); await eventoInstalar.userChoice.catch(() => {});
+    eventoInstalar = null; $('#btnInstalar').classList.add('hidden');
+  });
+  window.addEventListener('appinstalled', () => { $('#btnInstalar').classList.add('hidden'); toast('App instalada'); });
+  // iPhone / iPad en Safari: aviso de cómo instalar (una vez por semana como máximo)
+  const ios = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const ultimo = Number(store.get('hj_ios_hint') || 0);
+  if (MODO !== 'gas' && ios && !esStandalone() && Date.now() - ultimo > 7 * 864e5) {
+    setTimeout(() => $('#iosHint').classList.remove('hidden'), 1500);
+  }
+  $('#iosHintClose').addEventListener('click', () => { $('#iosHint').classList.add('hidden'); store.set('hj_ios_hint', String(Date.now())); });
+
+  // Acceso con código
+  $('#loginForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const clave = $('#loginClave').value.trim(); if (!clave) return;
+    store.set(APP.CLAVE_KEY, clave);
+    $('#loginBtn').disabled = true; $('#loginBtn').textContent = 'Verificando…';
+    $('#loginScreen').classList.add('hidden'); $('#bootLoader').classList.remove('hidden');
+    await cargarDatos();
+    $('#loginBtn').disabled = false; $('#loginBtn').textContent = 'Entrar'; $('#loginClave').value = '';
+  });
+  if (MODO === 'api') {
+    $('#btnSalir').classList.remove('hidden');
+    $('#btnSalir').addEventListener('click', () => { store.del(APP.CLAVE_KEY); store.del(APP.CACHE_KEY); location.reload(); });
+  }
+  window.addEventListener('online', () => MODO === 'api' && cargarDatos({ silencioso: true }));
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  if (MODO === 'demo') { const b = $('#demoBadge'); b.classList.remove('hidden'); if (window.innerWidth < 640) b.textContent = 'Demo'; }
+  bind();
+  prepararApp();
+  renderSkeleton();
+  icons();
+  if (MODO === 'api' && !store.get(APP.CLAVE_KEY)) mostrarLogin();
+  else cargarDatos();
+});
+</script>
+</body>
+</html>
