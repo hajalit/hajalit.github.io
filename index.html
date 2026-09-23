@@ -87,6 +87,8 @@
     .chip[aria-pressed="true"] .chip-n { background:var(--hj-yellow); color:var(--hj-graphite); }
 
     :focus-visible { outline:3px solid var(--hj-yellow); outline-offset:2px; }
+    body.rol-lector .solo-editor { display:none !important; }
+    body:not(.rol-admin) .solo-admin { display:none !important; }
 
     /* ---------- Móvil: Android y iPhone ---------- */
     html, body { -webkit-tap-highlight-color: transparent; }
@@ -121,10 +123,15 @@
     <div class="flex-1 flex flex-col items-center justify-center px-6">
       <img src="data:image/png;base64,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" alt="Hajali Tractor" class="w-52 max-w-[70vw]">
       <h1 class="mt-8 text-xl font-extrabold">Control de flota</h1>
-      <p class="text-sm text-hj-mute mt-1 text-center">Escribe el código de acceso que te dio Compras.</p>
+      <p class="text-sm text-hj-mute mt-1 text-center">Entra con tu usuario y contraseña.</p>
       <form id="loginForm" class="mt-6 w-full max-w-xs space-y-3">
-        <input id="loginClave" type="password" autocomplete="current-password" required placeholder="Código de acceso"
-          class="w-full h-12 px-4 rounded-md border border-hj-line text-center text-lg" aria-label="Código de acceso">
+        <input id="loginUsuario" type="text" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required placeholder="Usuario"
+          class="w-full h-12 px-4 rounded-md border border-hj-line text-lg" aria-label="Usuario">
+        <div class="relative">
+          <input id="loginClave" type="password" autocomplete="current-password" required placeholder="Contraseña"
+            class="w-full h-12 pl-4 pr-12 rounded-md border border-hj-line text-lg" aria-label="Contraseña">
+          <button type="button" class="verClave absolute right-1 top-1 h-10 w-10 grid place-items-center text-hj-soft" data-for="loginClave" aria-label="Mostrar contraseña"><i data-lucide="eye" class="w-5 h-5"></i></button>
+        </div>
         <button id="loginBtn" class="w-full h-12 rounded-md bg-hj-yellow font-extrabold flex items-center justify-center gap-2">Entrar</button>
         <p id="loginError" class="hidden text-sm font-semibold text-center bg-hj-cream border-l-4 border-hj-graphite px-3 py-2 rounded"></p>
       </form>
@@ -164,7 +171,7 @@
         <img src="data:image/png;base64,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" alt="Hajali Tractor" class="h-9 sm:h-12 w-auto shrink-0">
         <div class="hidden md:block h-10 w-px bg-hj-line"></div>
         <div class="min-w-0">
-          <h1 class="text-base sm:text-xl font-extrabold leading-tight">Control de flota</h1>
+          <h1 class="hidden min-[400px]:block text-base sm:text-xl font-extrabold leading-tight">Control de flota</h1>
           <p class="hidden sm:block text-sm text-hj-mute">Mantenimiento y costos por unidad</p>
         </div>
       </div>
@@ -173,10 +180,26 @@
           <i data-lucide="download" class="w-4 h-4"></i><span>Instalar</span>
         </button>
         <span id="demoBadge" class="hidden text-[11px] sm:text-xs font-bold px-2.5 py-1 rounded bg-hj-cream border-l-4 border-hj-yellow">Modo demostración</span>
+        <div id="userWrap" class="hidden relative">
+          <button id="btnUser" class="h-10 pl-1 pr-1.5 md:pr-3 rounded-md border border-hj-line flex items-center gap-2 hover:bg-hj-paper" aria-haspopup="menu" aria-expanded="false" aria-label="Menú de usuario">
+            <span id="userIni" class="h-8 w-8 rounded bg-hj-graphite text-hj-yellow grid place-items-center text-xs font-black">--</span>
+            <span class="hidden md:block text-left leading-tight"><span id="userNom" class="block text-sm font-bold max-w-[150px] truncate"></span><span id="userRol" class="block text-[11px] text-hj-mute"></span></span>
+            <i data-lucide="chevron-down" class="hidden md:block w-4 h-4 text-hj-soft"></i>
+          </button>
+          <div id="userMenu" class="hidden absolute right-0 top-12 z-40 w-64 rounded-lg border border-hj-line bg-white shadow-xl overflow-hidden" role="menu">
+            <div class="px-4 py-3 border-b border-hj-line bg-hj-paper">
+              <p id="userMenuNom" class="font-bold text-sm truncate"></p>
+              <p id="userMenuSub" class="text-xs text-hj-mute truncate"></p>
+            </div>
+            <button data-acc="usuarios" class="solo-admin w-full text-left px-4 h-12 text-sm font-semibold flex items-center gap-3 hover:bg-hj-paper" role="menuitem"><i data-lucide="users" class="w-4 h-4"></i>Usuarios</button>
+            <button data-acc="clave" class="w-full text-left px-4 h-12 text-sm font-semibold flex items-center gap-3 hover:bg-hj-paper" role="menuitem"><i data-lucide="key-round" class="w-4 h-4"></i>Cambiar contraseña</button>
+            <button data-acc="salir" class="w-full text-left px-4 h-12 text-sm font-semibold flex items-center gap-3 hover:bg-hj-cream border-t border-hj-line" role="menuitem"><i data-lucide="log-out" class="w-4 h-4"></i>Cerrar sesión</button>
+          </div>
+        </div>
         <button id="btnRefresh" class="h-10 w-10 grid place-items-center rounded-md border border-hj-line hover:bg-hj-paper" title="Actualizar datos" aria-label="Actualizar datos">
           <i data-lucide="refresh-cw" class="w-4 h-4"></i>
         </button>
-        <button id="btnNuevo" class="hidden sm:flex h-10 px-4 rounded-md bg-hj-yellow text-hj-graphite font-bold text-sm flex items-center gap-2 hover:brightness-95">
+        <button id="btnNuevo" class="solo-editor hidden sm:flex h-10 px-4 rounded-md bg-hj-yellow text-hj-graphite font-bold text-sm flex items-center gap-2 hover:brightness-95">
           <i data-lucide="plus" class="w-4 h-4"></i><span>Registrar mantenimiento</span>
         </button>
       </div>
@@ -297,7 +320,7 @@
     <div class="hj-band"><div class="y"></div><div class="g"></div></div>
     <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex justify-between text-xs text-hj-soft">
       <span>Hajali Tractor · Departamento de Compras</span>
-      <span class="flex items-center gap-3"><span id="lastSync"></span><button id="btnSalir" class="hidden underline underline-offset-4 hover:text-hj-graphite">Cambiar código</button></span>
+      <span id="lastSync"></span>
     </div>
   </footer>
 
@@ -401,8 +424,107 @@
     </div>
   </div>
 
+  <!-- ===================== MODAL: USUARIOS (administrador) ===================== -->
+  <div id="mUsuarios" class="modal" role="dialog" aria-modal="true" aria-labelledby="uTitulo">
+    <div class="scrim" data-close></div>
+    <div class="wrap relative h-full overflow-y-auto">
+      <div class="sheet relative bg-white max-w-3xl mx-auto sm:my-8 sm:rounded-lg overflow-hidden min-h-full sm:min-h-0">
+        <div class="hj-pattern sticky top-0 z-10 px-4 sm:px-6 py-4 flex items-center justify-between">
+          <h2 id="uTitulo" class="text-white font-extrabold text-lg">Usuarios</h2>
+          <button data-close class="h-9 w-9 grid place-items-center rounded-md text-white hover:bg-white/10" aria-label="Cerrar"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+        <div class="h-1.5 bg-hj-yellow"></div>
+
+        <!-- Vista: lista -->
+        <div id="uVistaLista" class="p-4 sm:p-6">
+          <div class="flex items-center justify-between gap-3 mb-4">
+            <p class="text-sm text-hj-mute">Quién entra a la app y qué puede hacer.</p>
+            <button id="btnNuevoUsuario" class="shrink-0 h-10 px-3 rounded-md bg-hj-yellow font-bold text-sm flex items-center gap-1.5"><i data-lucide="user-plus" class="w-4 h-4"></i>Nuevo usuario</button>
+          </div>
+          <div id="uLista" class="border border-hj-line rounded-lg divide-y divide-hj-line"></div>
+          <dl class="mt-5 grid sm:grid-cols-3 gap-3 text-xs">
+            <div class="rounded-md border border-hj-line p-3"><dt class="font-bold text-sm">Administrador</dt><dd class="text-hj-mute mt-1">Todo, incluido crear y editar usuarios.</dd></div>
+            <div class="rounded-md border border-hj-line p-3"><dt class="font-bold text-sm">Editor</dt><dd class="text-hj-mute mt-1">Consulta la flota y registra mantenimientos.</dd></div>
+            <div class="rounded-md border border-hj-line p-3"><dt class="font-bold text-sm">Lector</dt><dd class="text-hj-mute mt-1">Solo consulta. No puede registrar.</dd></div>
+          </dl>
+        </div>
+
+        <!-- Vista: formulario -->
+        <form id="uForm" class="hidden p-4 sm:p-6 space-y-5" novalidate>
+          <button type="button" id="uVolver" class="text-sm font-semibold text-hj-mute hover:text-hj-graphite flex items-center gap-1"><i data-lucide="chevron-left" class="w-4 h-4"></i>Volver a la lista</button>
+          <h3 id="uFormTitulo" class="text-lg font-extrabold">Nuevo usuario</h3>
+          <div class="grid sm:grid-cols-2 gap-4">
+            <label class="text-sm font-semibold">Usuario
+              <input id="uUsuario" type="text" autocapitalize="none" autocorrect="off" spellcheck="false" maxlength="30" placeholder="ej. jperez" class="mt-1 w-full h-11 px-3 rounded-md border border-hj-line font-normal bg-white disabled:bg-hj-paper disabled:text-hj-mute">
+              <span class="block text-[11px] text-hj-mute font-normal mt-1">Sin espacios. Con esto entra a la app.</span>
+            </label>
+            <label class="text-sm font-semibold">Nombre completo
+              <input id="uNombre" type="text" maxlength="60" placeholder="ej. José Pérez" class="mt-1 w-full h-11 px-3 rounded-md border border-hj-line font-normal bg-white">
+            </label>
+          </div>
+          <fieldset>
+            <legend class="text-sm font-semibold mb-2">Rol</legend>
+            <div class="seg grid grid-cols-3 rounded-md border border-hj-line p-1 gap-1 text-sm font-bold">
+              <input type="radio" name="uRol" id="uRolA" value="Administrador"><label for="uRolA" class="flex items-center justify-center h-10 rounded text-center leading-tight px-1">Administrador</label>
+              <input type="radio" name="uRol" id="uRolE" value="Editor" checked><label for="uRolE" class="flex items-center justify-center h-10 rounded">Editor</label>
+              <input type="radio" name="uRol" id="uRolL" value="Lector"><label for="uRolL" class="flex items-center justify-center h-10 rounded">Lector</label>
+            </div>
+          </fieldset>
+          <label class="block text-sm font-semibold"><span id="uClaveLabel">Contraseña</span>
+            <div class="relative mt-1 flex gap-2">
+              <input id="uClave" type="text" autocomplete="new-password" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="Mínimo 6 caracteres" class="w-full h-11 px-3 rounded-md border border-hj-line font-normal bg-white">
+              <button type="button" id="uGenerar" class="shrink-0 h-11 px-3 rounded-md border-2 border-hj-graphite text-sm font-bold flex items-center gap-1.5 hover:bg-hj-cream"><i data-lucide="wand-sparkles" class="w-4 h-4"></i>Generar</button>
+            </div>
+            <span id="uClaveAyuda" class="block text-[11px] text-hj-mute font-normal mt-1">Compártela con la persona por un medio privado.</span>
+          </label>
+          <label id="uActivoWrap" class="flex items-center justify-between gap-3 rounded-md border border-hj-line px-4 py-3 cursor-pointer">
+            <span><span class="block text-sm font-semibold">Usuario activo</span><span class="block text-xs text-hj-mute">Si lo desactivas, no podrá entrar y se cierran sus sesiones.</span></span>
+            <input id="uActivo" type="checkbox" checked class="h-6 w-6 accent-[#363636]">
+          </label>
+          <p id="uError" class="hidden text-sm font-semibold bg-hj-cream border-l-4 border-hj-graphite px-3 py-2 rounded"></p>
+          <div class="sticky-actions sticky bottom-0 z-10 bg-white -mx-4 sm:-mx-6 px-4 sm:px-6 pt-3 border-t border-hj-line grid grid-cols-2 sm:flex gap-3 sm:justify-end">
+            <button type="button" id="uCancelar" class="h-11 px-5 rounded-md border border-hj-line font-semibold">Cancelar</button>
+            <button id="uGuardar" type="submit" class="h-11 px-6 rounded-md bg-hj-yellow font-extrabold flex items-center justify-center gap-2 disabled:opacity-60"><i data-lucide="save" class="w-4 h-4"></i><span>Guardar</span></button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== MODAL: CAMBIAR CONTRASEÑA ===================== -->
+  <div id="mClave" class="modal" role="dialog" aria-modal="true" aria-labelledby="cTitulo">
+    <div class="scrim" data-close></div>
+    <div class="wrap relative h-full overflow-y-auto">
+      <div class="sheet relative bg-white max-w-md mx-auto sm:my-16 sm:rounded-lg overflow-hidden min-h-full sm:min-h-0">
+        <div class="hj-pattern sticky top-0 z-10 px-4 sm:px-6 py-4 flex items-center justify-between">
+          <h2 id="cTitulo" class="text-white font-extrabold text-lg">Cambiar contraseña</h2>
+          <button data-close class="h-9 w-9 grid place-items-center rounded-md text-white hover:bg-white/10" aria-label="Cerrar"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+        <div class="h-1.5 bg-hj-yellow"></div>
+        <form id="cForm" class="p-4 sm:p-6 space-y-4" novalidate>
+          <label class="block text-sm font-semibold">Contraseña actual
+            <div class="relative mt-1"><input id="cActual" type="password" autocomplete="current-password" class="w-full h-11 px-3 rounded-md border border-hj-line font-normal bg-white pr-12">
+            <button type="button" class="verClave absolute right-1 top-0.5 h-10 w-10 grid place-items-center text-hj-soft" data-for="cActual" aria-label="Mostrar contraseña"><i data-lucide="eye" class="w-5 h-5"></i></button></div>
+          </label>
+          <label class="block text-sm font-semibold">Contraseña nueva
+            <div class="relative mt-1"><input id="cNueva" type="password" autocomplete="new-password" placeholder="Mínimo 6 caracteres" class="w-full h-11 px-3 rounded-md border border-hj-line font-normal bg-white pr-12">
+            <button type="button" class="verClave absolute right-1 top-0.5 h-10 w-10 grid place-items-center text-hj-soft" data-for="cNueva" aria-label="Mostrar contraseña"><i data-lucide="eye" class="w-5 h-5"></i></button></div>
+          </label>
+          <label class="block text-sm font-semibold">Repite la contraseña nueva
+            <input id="cRepite" type="password" autocomplete="new-password" class="mt-1 w-full h-11 px-3 rounded-md border border-hj-line font-normal bg-white">
+          </label>
+          <p id="cError" class="hidden text-sm font-semibold bg-hj-cream border-l-4 border-hj-graphite px-3 py-2 rounded"></p>
+          <div class="grid grid-cols-2 gap-3 pt-2">
+            <button type="button" data-close class="h-11 rounded-md border border-hj-line font-semibold">Cancelar</button>
+            <button id="cGuardar" type="submit" class="h-11 rounded-md bg-hj-yellow font-extrabold disabled:opacity-60">Guardar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
   <!-- Botón flotante (solo teléfono) -->
-  <button id="fab" class="fab sm:hidden fixed z-40 h-14 w-14 rounded-full bg-hj-yellow text-hj-graphite shadow-lg grid place-items-center" aria-label="Registrar mantenimiento">
+  <button id="fab" class="solo-editor fab sm:hidden fixed z-40 h-14 w-14 rounded-full bg-hj-yellow text-hj-graphite shadow-lg grid place-items-center" aria-label="Registrar mantenimiento">
     <i data-lucide="plus" class="w-7 h-7"></i>
   </button>
 
@@ -470,7 +592,8 @@ function toast(msg, tipo = 'ok') {
    Si la dejas vacía, la app abre en modo demostración. */
 const APP = {
   API_URL: 'https://script.google.com/macros/s/AKfycbx2e5JBC5QPvfzyNQK3m7fWncK6LSRXgbq3Sz-U-lCi_uDnpWG0qXymKWFCYhtaWqnM/exec',
-  CLAVE_KEY: 'hj_flota_clave',
+  TOKEN_KEY: 'hj_flota_token',
+  USER_KEY: 'hj_flota_usuario',
   CACHE_KEY: 'hj_flota_cache'
 };
 /* ▲▲▲ ▲▲▲ */
@@ -483,19 +606,19 @@ const store = {
   set: (k, v) => { memoria[k] = v; try { localStorage.setItem(k, v); } catch (e) {} },
   del: k => { delete memoria[k]; try { localStorage.removeItem(k); } catch (e) {} }
 };
-class ErrorClave extends Error {}
+class ErrorSesion extends Error {}
 class ErrorRed extends Error {}
 
 async function llamarAPI(accion, datos) {
-  const clave = store.get(APP.CLAVE_KEY);
-  if (!clave) throw new ErrorClave('Falta el código de acceso.');
+  const token = store.get(APP.TOKEN_KEY);
+  if (accion !== 'login' && !token) throw new ErrorSesion('Inicia sesión para continuar.');
   let resp;
   try {
     // text/plain evita la verificación CORS previa, que Apps Script no admite
     resp = await fetch(APP.API_URL, {
       method: 'POST', redirect: 'follow',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ accion, clave, datos })
+      body: JSON.stringify({ accion, token, datos })
     });
   } catch (e) {
     if (!navigator.onLine) throw new ErrorRed('Tu teléfono no tiene internet. Revisa los datos móviles o el Wi-Fi.');
@@ -505,20 +628,64 @@ async function llamarAPI(accion, datos) {
   let json;
   try { json = await resp.json(); } catch (e) { throw new Error('El servidor respondió con un formato inesperado. Revisa que la implementación permita el acceso a "Cualquier usuario".'); }
   if (!json.ok) {
-    if (json.codigo === 'CLAVE') throw new ErrorClave(json.error);
+    if (json.codigo === 'SESION') throw new ErrorSesion(json.error);
     throw new Error(json.error || 'Error del servidor.');
   }
   return json;
 }
 
-function api(fn, ...args) {
-  if (MODO === 'api') return llamarAPI({ getDatosFlota: 'datos', guardarMantenimiento: 'guardar' }[fn], args[0]);
+function api(fn, arg) {
+  const accion = { getDatosFlota: 'datos', guardarMantenimiento: 'guardar' }[fn] || fn;
+  if (MODO === 'api') return llamarAPI(accion, arg);
   return new Promise((resolve, reject) => {
-    if (MODO === 'demo') return DEMO[fn](...args).then(resolve, reject);
+    if (MODO === 'demo') return DEMO[accion](arg).then(resolve, reject);
+    const args = arg === undefined ? [] : [arg];
     google.script.run
       .withSuccessHandler(resolve)
       .withFailureHandler(err => reject(err && err.message ? err : new Error(String(err))))[fn](...args);
   });
+}
+
+/* ---------- Sesión y permisos ---------- */
+const sesion = { usuario: null };
+const ROL_CORTO = { Administrador: 'Administrador', Editor: 'Editor', Lector: 'Lector' };
+const iniciales = n => (n || '?').split(/\s+/).filter(Boolean).slice(0, 2).map(p => p[0]).join('').toUpperCase();
+
+function aplicarSesion(u) {
+  sesion.usuario = u || null;
+  document.body.classList.toggle('rol-lector', !!u && u.rol === 'Lector');
+  document.body.classList.toggle('rol-admin', !!u && u.rol === 'Administrador');
+  $('#userWrap').classList.toggle('hidden', !u);
+  if (!u) return;
+  store.set(APP.USER_KEY, JSON.stringify(u));
+  $('#userIni').textContent = iniciales(u.nombre);
+  $('#userNom').textContent = u.nombre;
+  $('#userRol').textContent = ROL_CORTO[u.rol] || u.rol;
+  $('#userMenuNom').textContent = u.nombre;
+  $('#userMenuSub').textContent = `@${u.usuario}, ${ROL_CORTO[u.rol] || u.rol}`;
+}
+
+/** Cierra la sesión local y muestra la pantalla de acceso. */
+function finSesion(msg) {
+  store.del(APP.TOKEN_KEY); store.del(APP.USER_KEY); store.del(APP.CACHE_KEY);
+  aplicarSesion(null);
+  state.vehiculos = []; render();
+  $$('.modal.open').forEach(m => cerrarModal(m, true));
+  mostrarLogin(msg);
+}
+
+async function cerrarSesion() {
+  cerrarMenuUsuario();
+  const t = store.get(APP.TOKEN_KEY);
+  if (MODO === 'api' && t) llamarAPI('logout').catch(() => {});
+  finSesion('');
+  toast('Sesión cerrada');
+}
+
+/** Si el error es de sesión, cierra la sesión y devuelve true. */
+function manejarSesion(e) {
+  if (e instanceof ErrorSesion) { finSesion(e.message); return true; }
+  return false;
 }
 
 function mostrarLogin(msg) {
@@ -526,7 +693,7 @@ function mostrarLogin(msg) {
   $('#loginScreen').classList.remove('hidden');
   const e = $('#loginError');
   e.textContent = msg || ''; e.classList.toggle('hidden', !msg);
-  setTimeout(() => $('#loginClave').focus(), 50);
+  setTimeout(() => ($('#loginUsuario').value ? $('#loginClave') : $('#loginUsuario')).focus(), 50);
 }
 
 function setOffline(texto) {
@@ -542,12 +709,13 @@ async function cargarDatos({ silencioso = false } = {}) {
     const res = await api('getDatosFlota');
     state.vehiculos = res.vehiculos || [];
     state.generado = res.generado || '';
+    if (res.usuario) aplicarSesion(res.usuario);
     if (MODO === 'api') store.set(APP.CACHE_KEY, JSON.stringify({ generado: state.generado, vehiculos: state.vehiculos }));
     setOffline('');
     $('#lastSync').textContent = state.generado ? `Datos al ${state.generado}` : '';
     render();
   } catch (e) {
-    if (e instanceof ErrorClave) { store.del(APP.CLAVE_KEY); mostrarLogin(e.message); return; }
+    if (manejarSesion(e)) return;
     const cache = MODO === 'api' && store.get(APP.CACHE_KEY);
     if (e instanceof ErrorRed && cache) {
       const c = JSON.parse(cache);
@@ -794,7 +962,7 @@ function abrirDetalle(id) {
     <div class="p-4 sm:p-6">
       <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
         <h3 class="text-lg font-extrabold">Historial de mantenimientos <span class="text-hj-soft num">${v.mf.length}</span></h3>
-        <button class="btnNuevoUnidad h-10 px-4 rounded-md bg-hj-yellow font-bold text-sm flex items-center gap-2" data-id="${esc(v.id)}"><i data-lucide="plus" class="w-4 h-4"></i>Registrar mantenimiento</button>
+        <button class="solo-editor btnNuevoUnidad h-10 px-4 rounded-md bg-hj-yellow font-bold text-sm flex items-center gap-2" data-id="${esc(v.id)}"><i data-lucide="plus" class="w-4 h-4"></i>Registrar mantenimiento</button>
       </div>
       ${filtroActivo ? `<p class="text-xs text-hj-mute mb-4 bg-hj-cream border-l-4 border-hj-yellow px-3 py-2 rounded">Mostrando solo intervenciones entre ${state.filtros.desde ? fechaLarga(state.filtros.desde) : 'el inicio'} y ${state.filtros.hasta ? fechaLarga(state.filtros.hasta) : 'hoy'}.</p>` : ''}
       ${v.mf.length ? `<ol class="relative border-l-2 border-hj-line ml-1 sm:ml-2 space-y-3 sm:space-y-4">${v.mf.map(itemTimeline).join('')}</ol>`
@@ -846,7 +1014,7 @@ function itemTimeline(m) {
             <div class="text-right"><dt class="text-[11px] text-hj-mute">Total</dt><dd class="num font-black">${money(m.costoTotal)}</dd></div>
           </dl>
           ${m.observaciones ? `<p class="text-sm mt-3"><span class="text-hj-mute">Observaciones:</span> ${esc(m.observaciones)}</p>` : ''}
-          <p class="text-[11px] text-hj-soft mt-2">${esc(m.id)}</p>
+          <p class="text-[11px] text-hj-soft mt-2">${esc(m.id)}${m.registradoPor ? `. Registrado por ${esc(m.registradoPor)}` : ''}</p>
         </div>
       </div></div>
     </div>
@@ -993,7 +1161,7 @@ async function guardar(ev) {
     await cargarDatos({ silencioso: true });
     if ($('#mDetalle').classList.contains('open')) abrirDetalle(d.idUnidad);
   } catch (e) {
-    if (e instanceof ErrorClave) { store.del(APP.CLAVE_KEY); cerrarModal($('#mForm')); mostrarLogin(e.message); return; }
+    if (manejarSesion(e)) return;
     box.textContent = e instanceof ErrorRed
       ? 'No se guardó: no hay conexión. Tus datos siguen en el formulario; intenta de nuevo cuando tengas señal.'
       : 'No se guardó: ' + e.message;
@@ -1039,6 +1207,7 @@ function bind() {
     if (e.target.closest('[data-close]') || e.target.classList.contains('wrap')) cerrarModal(m);
   }));
   document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') cerrarMenuUsuario();
     if (e.key === 'Escape') { const abiertos = $$('.modal.open'); abiertos.length && cerrarModal(abiertos[abiertos.length - 1]); }
   });
 
@@ -1096,15 +1265,43 @@ const DEMO = (() => {
     return { id, nombre, tipo, placa, marcaModelo, ano, foto: '', estado, costoTotal: mantenimientos.reduce((a, m) => a + m.costoTotal, 0), mantenimientos };
   });
   const wait = ms => new Promise(r => setTimeout(r, ms));
+  const demoUsuarios = [
+    { usuario: 'admin', nombre: 'Administrador Compras', rol: 'Administrador', activo: true, ultimoAcceso: '2026-09-23 08:10' },
+    { usuario: 'jperez', nombre: 'José Pérez', rol: 'Editor', activo: true, ultimoAcceso: '2026-09-22 16:45' },
+    { usuario: 'mvargas', nombre: 'Marilyn Vargas', rol: 'Lector', activo: true, ultimoAcceso: '' },
+    { usuario: 'cruiz', nombre: 'Carlos Ruiz', rol: 'Editor', activo: false, ultimoAcceso: '2026-06-02 10:20' }
+  ];
+  let demoYo = { ...demoUsuarios[0] };
   return {
-    async getDatosFlota() { await wait(600); return { ok: true, generado: new Date().toLocaleString(UI.locale), vehiculos: JSON.parse(JSON.stringify(vehiculos)) }; },
-    async guardarMantenimiento(d) {
+    async datos() { await wait(600); return { ok: true, usuario: demoYo, generado: new Date().toLocaleString(UI.locale), vehiculos: JSON.parse(JSON.stringify(vehiculos)) }; },
+    async login(d) {
+      await wait(500);
+      const u = demoUsuarios.find(x => x.usuario === String(d.usuario || '').toLowerCase().trim());
+      if (!u || !d.clave) throw new Error('Usuario o contraseña incorrectos. En la demostración usa admin / cualquier contraseña.');
+      if (!u.activo) throw new Error('Tu usuario está desactivado. Habla con el administrador.');
+      demoYo = { ...u }; return { ok: true, token: 'demo', usuario: demoYo };
+    },
+    async logout() { return { ok: true }; },
+    async cambiarClave(d) { await wait(400); if (String(d.nueva || '').length < 6) throw new Error('La contraseña debe tener al menos 6 caracteres.'); return { ok: true }; },
+    async usuariosListar() { await wait(400); return { ok: true, usuarios: JSON.parse(JSON.stringify(demoUsuarios)) }; },
+    async usuarioGuardar(d) {
+      await wait(500);
+      const usuario = String(d.usuario || '').toLowerCase().trim();
+      if (!/^[a-z0-9._-]{3,30}$/.test(usuario)) throw new Error('El usuario debe tener de 3 a 30 caracteres, sin espacios.');
+      const ex = demoUsuarios.find(x => x.usuario === usuario);
+      if (d.nuevo && ex) throw new Error(`Ya existe un usuario "${usuario}".`);
+      if (d.nuevo) { if (String(d.clave || '').length < 6) throw new Error('La contraseña debe tener al menos 6 caracteres.');
+        demoUsuarios.push({ usuario, nombre: d.nombre, rol: d.rol, activo: d.activo, ultimoAcceso: '' }); }
+      else Object.assign(ex, { nombre: d.nombre, rol: d.rol, activo: d.activo });
+      return { ok: true, usuarios: JSON.parse(JSON.stringify(demoUsuarios)) };
+    },
+    async guardar(d) {
       await wait(700);
       const v = vehiculos.find(x => x.id === d.idUnidad);
       const repuestos = d.repuestos.map((r, i) => ({ id: 'R' + i, ...r, subtotal: r.cantidad * r.costoUnitario }));
       const cr = repuestos.reduce((a, r) => a + r.subtotal, 0);
       const m = { id: 'MNT-DEMO-' + Date.now(), fecha: d.fecha, tipoTaller: d.tipoTaller, tallerExterno: d.tallerExterno, mecanico: d.mecanico,
-        costoManoObra: d.costoManoObra, costoRepuestos: cr, costoTotal: cr + d.costoManoObra, kmHoras: d.kmHoras, observaciones: d.observaciones, repuestos };
+        costoManoObra: d.costoManoObra, costoRepuestos: cr, costoTotal: cr + d.costoManoObra, kmHoras: d.kmHoras, observaciones: d.observaciones, registradoPor: demoYo.usuario, repuestos };
       v.mantenimientos.unshift(m); v.mantenimientos.sort((a, b) => b.fecha.localeCompare(a.fecha));
       return { ok: true, id: m.id, costoTotal: m.costoTotal };
     }
@@ -1114,6 +1311,136 @@ const DEMO = (() => {
 /* =========================================================================
    INICIO
    ========================================================================= */
+/* ---------- Menú de usuario ---------- */
+function abrirMenuUsuario() { $('#userMenu').classList.remove('hidden'); $('#btnUser').setAttribute('aria-expanded', 'true'); icons(); }
+function cerrarMenuUsuario() { $('#userMenu').classList.add('hidden'); $('#btnUser').setAttribute('aria-expanded', 'false'); }
+
+/* ---------- Gestión de usuarios (solo administrador) ---------- */
+let usuariosCache = [];
+let usuarioEditando = null;
+
+function vistaUsuarios(v) {
+  $('#uVistaLista').classList.toggle('hidden', v !== 'lista');
+  $('#uForm').classList.toggle('hidden', v !== 'form');
+  $('#mUsuarios .wrap').scrollTop = 0;
+}
+
+async function abrirUsuarios() {
+  vistaUsuarios('lista');
+  abrirModal('#mUsuarios');
+  $('#uLista').innerHTML = `<div class="p-6 flex items-center justify-center gap-2 text-sm text-hj-mute"><svg class="spin w-4 h-4" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-opacity=".25" stroke-width="3"/><path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>Cargando usuarios…</div>`;
+  try {
+    const r = await api('usuariosListar');
+    usuariosCache = r.usuarios || [];
+    renderUsuarios();
+  } catch (e) {
+    if (manejarSesion(e)) return;
+    $('#uLista').innerHTML = `<p class="p-4 text-sm font-semibold">${esc(e.message)}</p>`;
+  }
+}
+
+function badgeRol(rol) {
+  const c = { Administrador: 'bg-hj-graphite text-hj-yellow', Editor: 'bg-hj-yellow text-hj-graphite', Lector: 'border border-hj-graphite text-hj-graphite' }[rol] || '';
+  return `<span class="text-[11px] font-bold px-2 py-0.5 rounded ${c}">${esc(ROL_CORTO[rol] || rol)}</span>`;
+}
+
+function renderUsuarios() {
+  if (!usuariosCache.length) { $('#uLista').innerHTML = '<p class="p-4 text-sm text-hj-mute">Aún no hay usuarios.</p>'; return; }
+  $('#uLista').innerHTML = usuariosCache.map(u => `
+    <button class="w-full text-left p-3 sm:p-4 flex items-center gap-3 hover:bg-hj-paper ${u.activo ? '' : 'opacity-60'}" data-u="${esc(u.usuario)}">
+      <span class="h-10 w-10 shrink-0 rounded bg-hj-paper border border-hj-line grid place-items-center text-sm font-black">${esc(iniciales(u.nombre))}</span>
+      <span class="min-w-0 flex-1">
+        <span class="flex flex-wrap items-center gap-2"><span class="font-bold truncate">${esc(u.nombre)}</span>${badgeRol(u.rol)}${u.activo ? '' : '<span class="text-[11px] font-bold px-2 py-0.5 rounded bg-hj-line">Inactivo</span>'}${sesion.usuario && u.usuario === sesion.usuario.usuario ? '<span class="text-[11px] text-hj-mute">(tú)</span>' : ''}</span>
+        <span class="block text-xs text-hj-mute truncate">@${esc(u.usuario)}. ${u.ultimoAcceso ? 'Último acceso: ' + esc(u.ultimoAcceso) : 'Nunca ha entrado'}</span>
+      </span>
+      <i data-lucide="pencil" class="w-4 h-4 text-hj-soft shrink-0"></i>
+    </button>`).join('');
+  icons();
+}
+
+function editarUsuario(u) {
+  usuarioEditando = u;
+  const nuevo = !u, yo = !!u && sesion.usuario && u.usuario === sesion.usuario.usuario;
+  $('#uFormTitulo').textContent = nuevo ? 'Nuevo usuario' : `Editar a ${u.nombre}`;
+  $('#uUsuario').value = u ? u.usuario : ''; $('#uUsuario').disabled = !nuevo;
+  $('#uNombre').value = u ? u.nombre : '';
+  $$('input[name=uRol]').forEach(r => { r.checked = r.value === (u ? u.rol : 'Editor'); });
+  $('#uActivo').checked = u ? u.activo : true;
+  $('#uActivoWrap').classList.toggle('hidden', yo);
+  $('#uClave').value = nuevo ? generarClave() : '';
+  $('#uClave').disabled = yo;
+  $('#uGenerar').disabled = yo;
+  $('#uClaveLabel').textContent = nuevo ? 'Contraseña inicial' : 'Nueva contraseña (déjala vacía para no cambiarla)';
+  $('#uClaveAyuda').textContent = yo ? 'Para cambiar tu propia contraseña usa "Cambiar contraseña" en tu menú.'
+    : nuevo ? 'Compártela con la persona por un medio privado. Podrá cambiarla después.'
+    : 'Si escribes una nueva, la persona tendrá que entrar otra vez con ella.';
+  $('#uError').classList.add('hidden');
+  vistaUsuarios('form');
+  icons();
+  if (nuevo && window.matchMedia('(hover: hover)').matches) $('#uUsuario').focus();
+}
+
+function generarClave() {
+  const c = 'abcdefghjkmnpqrstuvwxyz23456789';
+  const a = new Uint32Array(8); crypto.getRandomValues(a);
+  return Array.from(a, n => c[n % c.length]).join('');
+}
+
+async function guardarUsuario(ev) {
+  ev.preventDefault();
+  const nuevo = !usuarioEditando;
+  const d = {
+    nuevo,
+    usuario: $('#uUsuario').value.trim().toLowerCase(),
+    nombre: $('#uNombre').value.trim(),
+    rol: ($('input[name=uRol]:checked') || {}).value || 'Editor',
+    activo: $('#uActivo').checked,
+    clave: $('#uClave').disabled ? '' : $('#uClave').value.trim()
+  };
+  const box = $('#uError');
+  const fallo = !/^[a-z0-9._-]{3,30}$/.test(d.usuario) ? 'El usuario debe tener de 3 a 30 caracteres: letras, números, punto o guion, sin espacios.'
+    : !d.nombre ? 'Escribe el nombre de la persona.'
+    : (nuevo || d.clave) && d.clave.length < 6 ? 'La contraseña debe tener al menos 6 caracteres.' : '';
+  if (fallo) { box.textContent = fallo; box.classList.remove('hidden'); return; }
+  box.classList.add('hidden');
+  const btn = $('#uGuardar'); btn.disabled = true; btn.lastElementChild.textContent = 'Guardando…';
+  try {
+    const r = await api('usuarioGuardar', d);
+    usuariosCache = r.usuarios || usuariosCache;
+    if (sesion.usuario && d.usuario === sesion.usuario.usuario) {
+      const yo = usuariosCache.find(u => u.usuario === d.usuario); if (yo) aplicarSesion(yo);
+    }
+    renderUsuarios(); vistaUsuarios('lista');
+    toast(nuevo ? `Usuario ${d.usuario} creado` : 'Usuario guardado');
+  } catch (e) {
+    if (manejarSesion(e)) return;
+    box.textContent = e.message; box.classList.remove('hidden');
+  } finally { btn.disabled = false; btn.lastElementChild.textContent = 'Guardar'; }
+}
+
+/* ---------- Cambiar mi contraseña ---------- */
+function abrirCambioClave() {
+  $('#cForm').reset(); $('#cError').classList.add('hidden');
+  abrirModal('#mClave');
+}
+
+async function guardarCambioClave(ev) {
+  ev.preventDefault();
+  const actual = $('#cActual').value, nueva = $('#cNueva').value, repite = $('#cRepite').value;
+  const box = $('#cError');
+  const fallo = !actual ? 'Escribe tu contraseña actual.' : nueva.length < 6 ? 'La contraseña nueva debe tener al menos 6 caracteres.'
+    : nueva !== repite ? 'Las contraseñas nuevas no coinciden.' : '';
+  if (fallo) { box.textContent = fallo; box.classList.remove('hidden'); return; }
+  const btn = $('#cGuardar'); btn.disabled = true; btn.textContent = 'Guardando…';
+  try {
+    await api('cambiarClave', { actual, nueva });
+    cerrarModal($('#mClave')); toast('Contraseña actualizada');
+  } catch (e) {
+    if (manejarSesion(e)) return;
+    box.textContent = e.message; box.classList.remove('hidden');
+  } finally { btn.disabled = false; btn.textContent = 'Guardar'; }
+}
+
 let eventoInstalar = null;
 const esStandalone = () => window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
 
@@ -1141,20 +1468,55 @@ function prepararApp() {
   }
   $('#iosHintClose').addEventListener('click', () => { $('#iosHint').classList.add('hidden'); store.set('hj_ios_hint', String(Date.now())); });
 
-  // Acceso con código
+  // Acceso con usuario y contraseña
   $('#loginForm').addEventListener('submit', async e => {
     e.preventDefault();
-    const clave = $('#loginClave').value.trim(); if (!clave) return;
-    store.set(APP.CLAVE_KEY, clave);
-    $('#loginBtn').disabled = true; $('#loginBtn').textContent = 'Verificando…';
-    $('#loginScreen').classList.add('hidden'); $('#bootLoader').classList.remove('hidden');
-    await cargarDatos();
-    $('#loginBtn').disabled = false; $('#loginBtn').textContent = 'Entrar'; $('#loginClave').value = '';
+    const usuario = $('#loginUsuario').value.trim().toLowerCase(), clave = $('#loginClave').value;
+    const err = $('#loginError');
+    if (!usuario || !clave) { err.textContent = 'Escribe tu usuario y contraseña.'; err.classList.remove('hidden'); return; }
+    const btn = $('#loginBtn'); btn.disabled = true; btn.textContent = 'Verificando…'; err.classList.add('hidden');
+    try {
+      const r = await api('login', { usuario, clave });
+      store.set(APP.TOKEN_KEY, r.token);
+      aplicarSesion(r.usuario);
+      $('#loginClave').value = '';
+      $('#loginScreen').classList.add('hidden'); $('#bootLoader').classList.remove('hidden');
+      await cargarDatos();
+      toast(`Hola, ${r.usuario.nombre.split(' ')[0]}`);
+    } catch (e2) {
+      err.textContent = e2.message; err.classList.remove('hidden');
+      $('#loginClave').select();
+    } finally { btn.disabled = false; btn.textContent = 'Entrar'; }
   });
-  if (MODO === 'api') {
-    $('#btnSalir').classList.remove('hidden');
-    $('#btnSalir').addEventListener('click', () => { store.del(APP.CLAVE_KEY); store.del(APP.CACHE_KEY); location.reload(); });
-  }
+
+  // Mostrar / ocultar contraseña
+  document.addEventListener('click', e => {
+    const b = e.target.closest('.verClave'); if (!b) return;
+    const inp = document.getElementById(b.dataset.for);
+    const ver = inp.type === 'password'; inp.type = ver ? 'text' : 'password';
+    b.innerHTML = `<i data-lucide="${ver ? 'eye-off' : 'eye'}" class="w-5 h-5"></i>`; icons();
+  });
+
+  // Menú de usuario
+  $('#btnUser').addEventListener('click', e => { e.stopPropagation(); $('#userMenu').classList.contains('hidden') ? abrirMenuUsuario() : cerrarMenuUsuario(); });
+  document.addEventListener('click', e => { if (!e.target.closest('#userWrap')) cerrarMenuUsuario(); });
+  $('#userMenu').addEventListener('click', e => {
+    const b = e.target.closest('[data-acc]'); if (!b) return;
+    cerrarMenuUsuario();
+    ({ usuarios: abrirUsuarios, clave: abrirCambioClave, salir: cerrarSesion })[b.dataset.acc]();
+  });
+
+  // Usuarios
+  $('#btnNuevoUsuario').addEventListener('click', () => editarUsuario(null));
+  $('#uVolver').addEventListener('click', () => vistaUsuarios('lista'));
+  $('#uCancelar').addEventListener('click', () => vistaUsuarios('lista'));
+  $('#uLista').addEventListener('click', e => {
+    const b = e.target.closest('[data-u]'); if (!b) return;
+    editarUsuario(usuariosCache.find(u => u.usuario === b.dataset.u));
+  });
+  $('#uGenerar').addEventListener('click', () => { $('#uClave').value = generarClave(); });
+  $('#uForm').addEventListener('submit', guardarUsuario);
+  $('#cForm').addEventListener('submit', guardarCambioClave);
   window.addEventListener('online', () => MODO === 'api' && cargarDatos({ silencioso: true }));
 }
 
@@ -1164,8 +1526,10 @@ document.addEventListener('DOMContentLoaded', () => {
   prepararApp();
   renderSkeleton();
   icons();
-  if (MODO === 'api' && !store.get(APP.CLAVE_KEY)) mostrarLogin();
-  else cargarDatos();
+  if (MODO === 'api' && !store.get(APP.TOKEN_KEY)) { mostrarLogin(); return; }
+  const guardado = store.get(APP.USER_KEY);
+  if (guardado) { try { aplicarSesion(JSON.parse(guardado)); } catch (e) {} }
+  cargarDatos();
 });
 </script>
 </body>

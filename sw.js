@@ -2,7 +2,7 @@
    - La app (index.html) se pide primero a la red para recibir actualizaciones; sin señal usa la copia guardada.
    - Librerías e íconos se sirven desde la copia guardada.
    - Las llamadas a Apps Script nunca se guardan: siempre van a la red. */
-const VERSION = 'flota-hajali-v2';
+const VERSION = 'flota-hajali-v3';
 const BASE = ['./', './index.html', './manifest.webmanifest',
   './icon-192.png', './icon-512.png', './apple-touch-icon.png', './favicon-32.png'];
 
