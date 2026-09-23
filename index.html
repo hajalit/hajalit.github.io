@@ -13,8 +13,8 @@
   <title>Control de Flota | Hajali Tractor</title>
 
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
-  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -135,7 +135,7 @@
   <!-- Aviso de instalación en iPhone -->
   <div id="iosHint" class="hidden fixed left-3 right-3 z-[66] rounded-lg bg-hj-graphite text-white p-4 shadow-xl" style="bottom:calc(12px + env(safe-area-inset-bottom,0px))">
     <div class="flex gap-3 items-start">
-      <img src="icons/apple-touch-icon.png" alt="" class="w-11 h-11 rounded-lg">
+      <img src="apple-touch-icon.png" alt="" class="w-11 h-11 rounded-lg">
       <div class="text-sm flex-1">
         <p class="font-bold">Instala Flota Hajali en tu iPhone</p>
         <p class="text-white/80 mt-1">Toca <i data-lucide="share" class="inline w-4 h-4 text-hj-yellow -mt-1"></i> Compartir y luego <b class="text-hj-yellow">Agregar a inicio</b>.</p>
@@ -469,7 +469,7 @@ function toast(msg, tipo = 'ok') {
    Pega aquí la URL de la implementación de Apps Script (termina en /exec).
    Si la dejas vacía, la app abre en modo demostración. */
 const APP = {
-  API_URL: '',
+  API_URL: 'https://script.google.com/macros/s/AKfycbx2e5JBC5QPvfzyNQK3m7fWncK6LSRXgbq3Sz-U-lCi_uDnpWG0qXymKWFCYhtaWqnM/exec',
   CLAVE_KEY: 'hj_flota_clave',
   CACHE_KEY: 'hj_flota_cache'
 };
