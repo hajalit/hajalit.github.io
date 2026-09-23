@@ -497,7 +497,11 @@ async function llamarAPI(accion, datos) {
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify({ accion, clave, datos })
     });
-  } catch (e) { throw new ErrorRed('Sin conexión con el servidor.'); }
+  } catch (e) {
+    if (!navigator.onLine) throw new ErrorRed('Tu teléfono no tiene internet. Revisa los datos móviles o el Wi-Fi.');
+    // Con internet, esto casi siempre significa que Google pide iniciar sesión (acceso mal configurado)
+    throw new ErrorRed('El servidor no permitió la conexión. En Apps Script, la implementación debe tener "Quién tiene acceso: Cualquier usuario" (sin "con cuenta de Google").');
+  }
   let json;
   try { json = await resp.json(); } catch (e) { throw new Error('El servidor respondió con un formato inesperado. Revisa que la implementación permita el acceso a "Cualquier usuario".'); }
   if (!json.ok) {
@@ -549,7 +553,7 @@ async function cargarDatos({ silencioso = false } = {}) {
       const c = JSON.parse(cache);
       state.vehiculos = c.vehiculos || []; state.generado = c.generado || '';
       $('#lastSync').textContent = `Datos al ${state.generado}`;
-      setOffline(`Sin conexión. Estás viendo los datos guardados del ${state.generado}.`);
+      setOffline(`${navigator.onLine ? 'No se pudo conectar con el servidor' : 'Sin internet'}. Estás viendo los datos guardados del ${state.generado}.`);
       render();
     } else {
       toast('No se pudieron cargar los datos: ' + e.message, 'err');
